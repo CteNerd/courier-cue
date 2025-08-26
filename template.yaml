@@ -68,12 +68,6 @@ Resources:
             RestApiId: !Ref Api
             Path: /api/v1/orders
             Method: POST
-        CreateOrderOptions:
-          Type: Api
-          Properties:
-            RestApiId: !Ref Api
-            Path: /api/v1/orders
-            Method: OPTIONS
 
   AssignOrderFunction:
     Type: AWS::Serverless::Function
@@ -90,12 +84,6 @@ Resources:
             RestApiId: !Ref Api
             Path: /api/v1/orders/{orderId}/assign
             Method: PATCH
-        AssignOrderOptions:
-          Type: Api
-          Properties:
-            RestApiId: !Ref Api
-            Path: /api/v1/orders/{orderId}/assign
-            Method: OPTIONS
 
   StartDeliveryFunction:
     Type: AWS::Serverless::Function
@@ -112,12 +100,6 @@ Resources:
             RestApiId: !Ref Api
             Path: /api/v1/orders/{orderId}/start
             Method: POST
-        StartDeliveryOptions:
-          Type: Api
-          Properties:
-            RestApiId: !Ref Api
-            Path: /api/v1/orders/{orderId}/start
-            Method: OPTIONS
 
   CompleteDeliveryFunction:
     Type: AWS::Serverless::Function
@@ -134,12 +116,6 @@ Resources:
             RestApiId: !Ref Api
             Path: /api/v1/orders/{orderId}/complete
             Method: POST
-        CompleteDeliveryOptions:
-          Type: Api
-          Properties:
-            RestApiId: !Ref Api
-            Path: /api/v1/orders/{orderId}/complete
-            Method: OPTIONS
 
   CancelOrderFunction:
     Type: AWS::Serverless::Function
@@ -156,12 +132,6 @@ Resources:
             RestApiId: !Ref Api
             Path: /api/v1/orders/{orderId}/cancel
             Method: POST
-        CancelOrderOptions:
-          Type: Api
-          Properties:
-            RestApiId: !Ref Api
-            Path: /api/v1/orders/{orderId}/cancel
-            Method: OPTIONS
 
   ListOrdersFunction:
     Type: AWS::Serverless::Function
@@ -178,12 +148,6 @@ Resources:
             RestApiId: !Ref Api
             Path: /api/v1/orders
             Method: GET
-        ListOrdersOptions:
-          Type: Api
-          Properties:
-            RestApiId: !Ref Api
-            Path: /api/v1/orders
-            Method: OPTIONS
 
   GetOrderFunction:
     Type: AWS::Serverless::Function
@@ -200,12 +164,6 @@ Resources:
             RestApiId: !Ref Api
             Path: /api/v1/orders/{orderId}
             Method: GET
-        GetOrderOptions:
-          Type: Api
-          Properties:
-            RestApiId: !Ref Api
-            Path: /api/v1/orders/{orderId}
-            Method: OPTIONS
 
   # Driver Functions
   ListDriversFunction:
@@ -223,12 +181,6 @@ Resources:
             RestApiId: !Ref Api
             Path: /api/v1/drivers
             Method: GET
-        ListDriversOptions:
-          Type: Api
-          Properties:
-            RestApiId: !Ref Api
-            Path: /api/v1/drivers
-            Method: OPTIONS
 
   GetDriverProfileFunction:
     Type: AWS::Serverless::Function
@@ -245,12 +197,6 @@ Resources:
             RestApiId: !Ref Api
             Path: /api/v1/drivers/me
             Method: GET
-        GetDriverProfileOptions:
-          Type: Api
-          Properties:
-            RestApiId: !Ref Api
-            Path: /api/v1/drivers/me
-            Method: OPTIONS
 
   UpdateDriverProfileFunction:
     Type: AWS::Serverless::Function
@@ -267,12 +213,6 @@ Resources:
             RestApiId: !Ref Api
             Path: /api/v1/drivers/me
             Method: PUT
-        UpdateDriverProfileOptions:
-          Type: Api
-          Properties:
-            RestApiId: !Ref Api
-            Path: /api/v1/drivers/me
-            Method: OPTIONS
 
   CreateDriverFunction:
     Type: AWS::Serverless::Function
@@ -289,12 +229,6 @@ Resources:
             RestApiId: !Ref Api
             Path: /api/v1/drivers
             Method: POST
-        CreateDriverOptions:
-          Type: Api
-          Properties:
-            RestApiId: !Ref Api
-            Path: /api/v1/drivers
-            Method: OPTIONS
 
   GetDriverFunction:
     Type: AWS::Serverless::Function
@@ -311,12 +245,6 @@ Resources:
             RestApiId: !Ref Api
             Path: /api/v1/drivers/{driverId}
             Method: GET
-        GetDriverOptions:
-          Type: Api
-          Properties:
-            RestApiId: !Ref Api
-            Path: /api/v1/drivers/{driverId}
-            Method: OPTIONS
 
   # DynamoDB Table
   CourierTable:
