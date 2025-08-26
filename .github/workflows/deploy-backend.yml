@@ -59,7 +59,8 @@ jobs:
           --stack-name courier-cue-backend \
           --parameter-overrides Environment=prod GitHubPagesUrl=https://${{ github.repository_owner }}.github.io/courier-cue \
           --capabilities CAPABILITY_IAM \
-          --region ${{ secrets.AWS_REGION }}
+          --region ${{ secrets.AWS_REGION }} \
+          --resolve-s3
 
     - name: Export stack outputs
       run: |
