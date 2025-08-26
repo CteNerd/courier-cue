@@ -46,7 +46,15 @@ const LandingPage = () => {
       </button>
 
       <div className="build-info">
-        <p>Foundation deployment - No business logic yet</p>
+        <p><strong>Demo Users:</strong></p>
+        <ul style={{ textAlign: 'left', fontSize: '14px' }}>
+          <li><strong>Dispatcher:</strong> Create and assign orders, monitor deliveries</li>
+          <li><strong>Driver:</strong> Receive assignments, complete deliveries with digital signatures</li>
+          <li><strong>Admin:</strong> Full system access and user management</li>
+        </ul>
+        <p style={{ fontSize: '12px', color: '#6b7280', marginTop: '16px' }}>
+          Contact your system administrator to get added to the appropriate Cognito user group.
+        </p>
       </div>
     </div>
   )

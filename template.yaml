@@ -52,6 +52,272 @@ Resources:
             Path: /health
             Method: GET
 
+  # Order Functions
+  CreateOrderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/
+      Handler: orders.createOrder
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CourierTable
+      Events:
+        CreateOrder:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/orders
+            Method: POST
+        CreateOrderOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/orders
+            Method: OPTIONS
+
+  AssignOrderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/
+      Handler: orders.assignOrder
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CourierTable
+      Events:
+        AssignOrder:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/orders/{orderId}/assign
+            Method: PATCH
+        AssignOrderOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/orders/{orderId}/assign
+            Method: OPTIONS
+
+  StartDeliveryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/
+      Handler: orders.startDelivery
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CourierTable
+      Events:
+        StartDelivery:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/orders/{orderId}/start
+            Method: POST
+        StartDeliveryOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/orders/{orderId}/start
+            Method: OPTIONS
+
+  CompleteDeliveryFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/
+      Handler: orders.completeDelivery
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CourierTable
+      Events:
+        CompleteDelivery:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/orders/{orderId}/complete
+            Method: POST
+        CompleteDeliveryOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/orders/{orderId}/complete
+            Method: OPTIONS
+
+  CancelOrderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/
+      Handler: orders.cancelOrder
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CourierTable
+      Events:
+        CancelOrder:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/orders/{orderId}/cancel
+            Method: POST
+        CancelOrderOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/orders/{orderId}/cancel
+            Method: OPTIONS
+
+  ListOrdersFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/
+      Handler: orders.listOrders
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CourierTable
+      Events:
+        ListOrders:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/orders
+            Method: GET
+        ListOrdersOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/orders
+            Method: OPTIONS
+
+  GetOrderFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/
+      Handler: orders.getOrder
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CourierTable
+      Events:
+        GetOrder:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/orders/{orderId}
+            Method: GET
+        GetOrderOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/orders/{orderId}
+            Method: OPTIONS
+
+  # Driver Functions
+  ListDriversFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/
+      Handler: drivers.listDrivers
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CourierTable
+      Events:
+        ListDrivers:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/drivers
+            Method: GET
+        ListDriversOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/drivers
+            Method: OPTIONS
+
+  GetDriverProfileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/
+      Handler: drivers.getDriverProfile
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CourierTable
+      Events:
+        GetDriverProfile:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/drivers/me
+            Method: GET
+        GetDriverProfileOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/drivers/me
+            Method: OPTIONS
+
+  UpdateDriverProfileFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/
+      Handler: drivers.updateDriverProfile
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CourierTable
+      Events:
+        UpdateDriverProfile:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/drivers/me
+            Method: PUT
+        UpdateDriverProfileOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/drivers/me
+            Method: OPTIONS
+
+  CreateDriverFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/
+      Handler: drivers.createDriver
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CourierTable
+      Events:
+        CreateDriver:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/drivers
+            Method: POST
+        CreateDriverOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/drivers
+            Method: OPTIONS
+
+  GetDriverFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/handlers/
+      Handler: drivers.getDriver
+      Policies:
+        - DynamoDBCrudPolicy:
+            TableName: !Ref CourierTable
+      Events:
+        GetDriver:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/drivers/{driverId}
+            Method: GET
+        GetDriverOptions:
+          Type: Api
+          Properties:
+            RestApiId: !Ref Api
+            Path: /api/v1/drivers/{driverId}
+            Method: OPTIONS
+
   # DynamoDB Table
   CourierTable:
     Type: AWS::DynamoDB::Table
@@ -63,11 +329,36 @@ Resources:
           AttributeType: S
         - AttributeName: SK
           AttributeType: S
+        - AttributeName: GSI1PK
+          AttributeType: S
+        - AttributeName: GSI1SK
+          AttributeType: S
+        - AttributeName: GSI2PK
+          AttributeType: S
+        - AttributeName: GSI2SK
+          AttributeType: S
       KeySchema:
         - AttributeName: PK
           KeyType: HASH
         - AttributeName: SK
           KeyType: RANGE
+      GlobalSecondaryIndexes:
+        - IndexName: GSI1
+          KeySchema:
+            - AttributeName: GSI1PK
+              KeyType: HASH
+            - AttributeName: GSI1SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: GSI2
+          KeySchema:
+            - AttributeName: GSI2PK
+              KeyType: HASH
+            - AttributeName: GSI2SK
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
       StreamSpecification:
         StreamViewType: NEW_AND_OLD_IMAGES
 
