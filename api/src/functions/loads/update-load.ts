@@ -1,8 +1,8 @@
 // PATCH /loads/{id} - Update load
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { getAuthContext, requireRole, verifyOrgAccess, logRequest } from '../lib/auth';
-import { getLoad, updateItem, createLoadEvent } from '../lib/db';
-import { validateBody, updateLoadSchema } from '../lib/validation';
+import { getAuthContext, requireRole, verifyOrgAccess, logRequest } from '../../lib/auth.js';
+import { getLoad, updateItem, createLoadEvent } from '../../lib/db.js';
+import { validateBody, updateLoadSchema } from '../../lib/validation.js';
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   try {
@@ -34,15 +34,15 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
     // Update GSI keys if status or assignedDriverId changed
     if (updates.status) {
       const dateKey = new Date().toISOString().split('T')[0];
-      updates.GSI3PK = `STATUS#${updates.status}`;
-      updates.GSI3SK = `${new Date().toISOString()}#LOAD#${loadId}`;
-      updates.GSI4SK = `${dateKey}#${updates.status}#${loadId}`;
+      (updates as any).GSI3PK = `STATUS#${updates.status}`;
+      (updates as any).GSI3SK = `${new Date().toISOString()}#LOAD#${loadId}`;
+      (updates as any).GSI4SK = `${dateKey}#${updates.status}#${loadId}`;
     }
 
     if (updates.assignedDriverId) {
       const dateKey = new Date().toISOString().split('T')[0];
-      updates.GSI2PK = `DRIVER#${updates.assignedDriverId}`;
-      updates.GSI2SK = `${dateKey}#LOAD#${loadId}`;
+      (updates as any).GSI2PK = `DRIVER#${updates.assignedDriverId}`;
+      (updates as any).GSI2SK = `${dateKey}#LOAD#${loadId}`;
     }
 
     const updatedLoad = await updateItem(`ORG#${orgId}`, `LOAD#${loadId}`, updates);

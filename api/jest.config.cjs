@@ -7,6 +7,7 @@ module.exports = {
   extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
+    '^(\\.\\.\\./lib/.*)\\.js$': '$1',
   },
   transform: {
     '^.+\\.ts$': [
@@ -16,6 +17,7 @@ module.exports = {
         isolatedModules: true,
         tsconfig: {
           skipLibCheck: true,
+          moduleResolution: 'Node16',
         },
       },
     ],

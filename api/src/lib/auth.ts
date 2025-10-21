@@ -50,7 +50,7 @@ export async function extractJWT(event: APIGatewayProxyEventV2): Promise<JWTClai
  */
 export function getAuthContext(event: APIGatewayProxyEventV2): AuthContext {
   // API Gateway JWT authorizer adds claims to requestContext
-  const claims = event.requestContext?.authorizer?.jwt?.claims;
+  const claims = (event.requestContext as any)?.authorizer?.jwt?.claims;
   
   if (!claims) {
     throw new AuthError('No authorization context found', 401);

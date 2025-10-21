@@ -1,5 +1,5 @@
 import { describe, it, expect } from '@jest/globals';
-import { verifyOrgAccess, requireRole, canAccessLoad, AuthError } from '../auth';
+import { verifyOrgAccess, requireRole, canAccessLoad, AuthError } from '../auth.js';
 
 describe('Auth Module', () => {
   describe('verifyOrgAccess', () => {

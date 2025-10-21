@@ -1,7 +1,7 @@
 // GET /loads/my - Get driver's assigned loads
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { getAuthContext, requireRole, logRequest } from '../lib/auth';
-import { getDriverLoads } from '../lib/db';
+import { getAuthContext, requireRole, logRequest } from '../../lib/auth.js';
+import { getDriverLoads } from '../../lib/db.js';
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   try {

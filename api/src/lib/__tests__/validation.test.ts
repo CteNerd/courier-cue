@@ -5,7 +5,7 @@ import {
   updateOrgSettingsSchema,
   inviteUserSchema,
   ValidationError,
-} from '../validation';
+} from '../validation.js';
 
 describe('Validation Module', () => {
   describe('validateBody', () => {

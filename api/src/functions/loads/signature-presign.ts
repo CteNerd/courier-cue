@@ -1,8 +1,8 @@
 // POST /loads/{id}/signature/shipper/presign - Get presigned URL for signature upload
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { getAuthContext, requireRole, canAccessLoad, logRequest } from '../lib/auth';
-import { getLoad } from '../lib/db';
-import { getSignatureUploadUrl } from '../lib/s3';
+import { getAuthContext, requireRole, canAccessLoad, logRequest } from '../../lib/auth.js';
+import { getLoad } from '../../lib/db.js';
+import { getSignatureUploadUrl } from '../../lib/s3.js';
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   try {
@@ -28,7 +28,7 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
     }
 
     // Check if driver can access this load
-    if (!canAccessLoad(authContext, load, 'write')) {
+    if (!canAccessLoad(authContext, load as any, 'write')) {
       return {
         statusCode: 403,
         body: JSON.stringify({ error: 'You can only upload signatures for loads assigned to you' }),

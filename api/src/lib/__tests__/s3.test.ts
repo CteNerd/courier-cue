@@ -3,7 +3,7 @@ import {
   verifyS3KeyOwnership,
   getReceiptS3Key,
   getSignatureUploadUrl,
-} from '../s3';
+} from '../s3.js';
 
 // Mock AWS SDK
 jest.mock('@aws-sdk/s3-request-presigner', () => ({

@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/local/server.ts",
-    "build": "echo 'Build step disabled temporarily due to TypeScript ES module issues - see commit message' && mkdir -p dist/functions",
-    "test": "jest",
+    "build": "esbuild src/functions/**/*.ts --bundle --platform=node --target=node20 --outdir=dist/functions --format=esm --external:@aws-sdk/* --out-extension:.js=.mjs --sourcemap",
+    "test": "NODE_OPTIONS='--experimental-vm-modules' jest",
     "test:int": "jest --testMatch='**/*.int.test.ts'",
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext .ts"

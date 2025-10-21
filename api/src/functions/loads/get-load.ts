@@ -1,7 +1,7 @@
 // GET /loads/{id} - Get load details
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { getAuthContext, verifyOrgAccess, canAccessLoad, logRequest } from '../lib/auth';
-import { getLoad } from '../lib/db';
+import { getAuthContext, verifyOrgAccess, canAccessLoad, logRequest } from '../../lib/auth.js';
+import { getLoad } from '../../lib/db.js';
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   try {
@@ -29,7 +29,7 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
     }
 
     // Check access permissions
-    if (!canAccessLoad(authContext, load, 'read')) {
+    if (!canAccessLoad(authContext, load as any, 'read')) {
       logRequest(authContext, 'GET_LOAD', { status: 'forbidden', loadId });
       return {
         statusCode: 403,

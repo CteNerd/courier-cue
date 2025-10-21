@@ -1,10 +1,10 @@
 // POST /org/users/invite - Invite a new user
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { getAuthContext, requireRole, verifyOrgAccess, logRequest } from '../lib/auth';
-import { putItem } from '../lib/db';
-import { validateBody, inviteUserSchema } from '../lib/validation';
-import { createCognitoUser } from '../lib/cognito';
-import { sendInviteEmail } from '../lib/email';
+import { getAuthContext, requireRole, verifyOrgAccess, logRequest } from '../../lib/auth.js';
+import { putItem } from '../../lib/db.js';
+import { validateBody, inviteUserSchema } from '../../lib/validation.js';
+import { createCognitoUser } from '../../lib/cognito.js';
+import { sendInviteEmail } from '../../lib/email.js';
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   try {
