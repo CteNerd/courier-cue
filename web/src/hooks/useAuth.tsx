@@ -1,8 +1,6 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
 import {
   CognitoUserPool,
-  CognitoUser,
-  AuthenticationDetails,
   CognitoUserSession,
 } from 'amazon-cognito-identity-js';
 import { setAuthToken } from '../lib/api';
@@ -10,7 +8,6 @@ import { setAuthToken } from '../lib/api';
 const USER_POOL_ID = import.meta.env.VITE_COGNITO_USER_POOL_ID || '';
 const CLIENT_ID = import.meta.env.VITE_COGNITO_CLIENT_ID || '';
 const COGNITO_DOMAIN = import.meta.env.VITE_COGNITO_DOMAIN || '';
-const IS_LOCAL_DEV = import.meta.env.VITE_LOCAL_DEV === 'true';
 const REDIRECT_URI = window.location.origin + '/callback';
 
 const userPool = new CognitoUserPool({
