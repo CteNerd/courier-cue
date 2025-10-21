@@ -180,16 +180,13 @@ pnpm dev:stack  # Re-seed database
 
 ## Integration Tests
 
-Integration tests use these services:
+Integration tests are planned to use these services but not yet implemented:
 
 ```bash
 # Start services
 docker compose -f docker/compose.local.yml up -d
 
-# Run tests
-cd api
-pnpm test:int
-
-cd ../web  
-pnpm test:int
+# Integration tests (planned)
+# cd api && pnpm test:int
+# cd ../web && pnpm test:int
 ```

@@ -17,7 +17,6 @@
     "build:web": "pnpm --filter web build",
     "build:api": "pnpm --filter api build",
     "test": "pnpm -r test",
-    "test:int": "pnpm -r test:int",
     "typecheck": "pnpm --filter web typecheck",
     "lint": "pnpm -r lint",
     "format": "prettier --write \"**/*.{ts,tsx,js,json,md,yaml,yml}\""

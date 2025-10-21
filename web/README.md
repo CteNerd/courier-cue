@@ -134,8 +134,21 @@ web/
 
 - **My Loads**: View assigned deliveries
 - **Load Details**: Service address, items, notes
-- **Signature Capture**: Canvas-based signature with geolocation
-- **Status Updates**: IN_TRANSIT → DELIVERED
+- **Status Updates**: IN_TRANSIT → DELIVERED workflow
+- **Signature Capture**: Planned (canvas-based with geolocation)
+
+### Implemented Features
+
+- ✅ Authentication & JWT token management
+- ✅ Role-based routing and access control
+- ✅ Dark/light theme with persistence
+- ✅ Responsive design
+- ✅ Load management (CRUD operations)
+- ✅ User management and invitations
+- ✅ Organization settings
+- ✅ Driver workflow pages
+- ⏳ Signature capture (planned)
+- ⏳ PDF receipt generation (planned)
 
 ## Styling
 

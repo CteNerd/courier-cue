@@ -182,9 +182,14 @@ pnpm lint
 # Run all tests
 pnpm test
 
-# Run integration tests
-pnpm test:int
+# Type check all packages
+pnpm typecheck
+
+# Lint all packages
+pnpm lint
 ```
+
+**Note**: Integration tests are planned but not yet implemented.
 
 ### Building
 
@@ -304,13 +309,20 @@ See [api/README.md](api/README.md) for complete API documentation.
 - [x] API backend (Lambda + DynamoDB)
 - [x] Local development environment (Docker + seed data)
 - [x] Local development server (Express wrapper for Lambda functions)
-- [x] Frontend skeleton (React + Vite)
-- [ ] Complete Admin Portal UI
-- [ ] Complete Driver App UI
+- [x] Frontend application (React + Vite)
+- [x] Complete Admin Portal UI
+- [x] Complete Driver App UI
+- [x] Authentication & authorization (Cognito + JWT)
+- [x] Multi-tenant organization management
+- [x] Load management with status tracking
+- [x] User management and role-based access
+- [x] Dark/light theme toggle
+- [x] Comprehensive testing setup
 - [ ] Signature capture component
 - [ ] PDF receipt generation
-- [ ] Email templates
-- [ ] E2E tests
+- [ ] Email templates and delivery
+- [ ] Integration tests (LocalStack + DynamoDB Local)
+- [ ] E2E tests (Playwright)
 - [ ] Production deployment
 
 ## Troubleshooting

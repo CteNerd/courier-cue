@@ -136,22 +136,12 @@ pnpm lint
 pnpm test
 ```
 
-### Run Integration Tests
-
-Requires DynamoDB Local and LocalStack running:
-
-```bash
-# Start local services
-docker compose -f ../docker/compose.local.yml up -d
-
-# Run integration tests
-pnpm test:int
-```
-
 ### Coverage
 
 Jest is configured with coverage thresholds:
 - Global: 80% (lines, branches, functions, statements)
+
+**Note**: Integration tests with LocalStack and DynamoDB Local are planned but not yet implemented.
 
 ## API Endpoints
 
