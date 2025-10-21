@@ -1,98 +1,72 @@
-import { useAuth } from '../hooks/useAuth';
+import { useUser } from '../hooks/useUser';
+import { getLoadStats, getLoadsByDriver } from '../data/mockData';
+import { Navigation } from '../components/Navigation';
 
 export default function DashboardPage() {
-  const { user, logout } = useAuth();
+  const { currentUser } = useUser();
+  const stats = getLoadStats();
+
+  if (!currentUser) return null;
+
+  // For drivers, we need to get their specific stats
+  const getDriverStats = () => {
+    if (currentUser.role === 'driver') {
+      const driverLoads = getLoadsByDriver(currentUser.userId);
+      return {
+        total: driverLoads.length,
+        pending: driverLoads.filter(load => ['PENDING', 'ASSIGNED', 'EN_ROUTE'].includes(load.status)).length,
+        completed: driverLoads.filter(load => ['DELIVERED', 'COMPLETED'].includes(load.status)).length
+      };
+    }
+    return stats;
+  };
+
+  const displayStats = getDriverStats();
+  const loadBaseUrl = currentUser.role === 'driver' ? '/driver/loads' : '/loads';
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-primary">CourierCue</h1>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-700">{user?.email}</span>
-              <button
-                onClick={logout}
-                className="text-sm text-gray-600 hover:text-gray-900"
-              >
-                Sign Out
-              </button>
-            </div>
-          </div>
-        </div>
-      </nav>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <Navigation />
 
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          <h2 className="text-3xl font-bold text-gray-900 mb-6">Dashboard</h2>
+          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Dashboard</h2>
           
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-3 mb-8">
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-1">
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Today's Loads
-                    </dt>
-                    <dd className="mt-1 text-3xl font-semibold text-gray-900">
-                      0
-                    </dd>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-1">
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      In Transit
-                    </dt>
-                    <dd className="mt-1 text-3xl font-semibold text-gray-900">
-                      0
-                    </dd>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div className="bg-white overflow-hidden shadow rounded-lg">
-              <div className="p-5">
-                <div className="flex items-center">
-                  <div className="flex-1">
-                    <dt className="text-sm font-medium text-gray-500 truncate">
-                      Delivered YTD
-                    </dt>
-                    <dd className="mt-1 text-3xl font-semibold text-gray-900">
-                      0
-                    </dd>
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <a
+              href={loadBaseUrl}
+              className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer"
+            >
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                {currentUser.role === 'driver' ? 'My Loads' : 'Total Loads'}
+              </h3>
+              <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">{displayStats.total}</p>
+            </a>
+            <a
+              href={`${loadBaseUrl}?status=pending`}
+              className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer"
+            >
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Pending</h3>
+              <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">{displayStats.pending}</p>
+            </a>
+            <a
+              href={`${loadBaseUrl}?status=completed`}
+              className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer"
+            >
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Completed</h3>
+              <p className="text-3xl font-bold text-green-600 dark:text-green-400">{displayStats.completed}</p>
+            </a>
           </div>
 
-          <div className="bg-white shadow rounded-lg p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">
-              Quick Actions
-            </h3>
-            <div className="space-x-4">
-              <a
-                href="/loads"
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary hover:bg-primary/90"
-              >
-                View All Loads
-              </a>
-              <a
-                href="/users"
-                className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
-              >
-                Manage Users
-              </a>
-            </div>
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Recent Activity</h3>
+            <p className="text-gray-600 dark:text-gray-300">Load management system is ready for development!</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
+              API Server: <span className="text-green-600 dark:text-green-400">Running on localhost:3001</span>
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Database: <span className="text-green-600 dark:text-green-400">Connected to local DynamoDB</span>
+            </p>
           </div>
         </div>
       </main>
