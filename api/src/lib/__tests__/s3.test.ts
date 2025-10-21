@@ -1,33 +1,52 @@
-import { describe, it, expect, jest } from '@jest/globals';
+import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+
+// Mock AWS SDK modules BEFORE importing the module under test
+const mockGetSignedUrl = jest.fn() as jest.MockedFunction<any>;
+const mockS3Client = jest.fn() as jest.MockedFunction<any>;
+const mockPutObjectCommand = jest.fn() as jest.MockedFunction<any>;
+const mockGetObjectCommand = jest.fn() as jest.MockedFunction<any>;
+
+jest.mock('@aws-sdk/client-s3', () => ({
+  S3Client: mockS3Client,
+  PutObjectCommand: mockPutObjectCommand,
+  GetObjectCommand: mockGetObjectCommand,
+}));
+
+jest.mock('@aws-sdk/s3-request-presigner', () => ({
+  getSignedUrl: mockGetSignedUrl,
+}));
+
+// Now import the module under test
 import {
   verifyS3KeyOwnership,
   getReceiptS3Key,
   getSignatureUploadUrl,
 } from '../s3.js';
 
-// Mock AWS SDK modules
-jest.mock('@aws-sdk/client-s3', () => ({
-  S3Client: jest.fn().mockImplementation(() => ({
-    send: jest.fn(),
-    config: {
-      region: jest.fn(() => Promise.resolve('us-east-1')),
-      credentials: jest.fn(() => Promise.resolve({
-        accessKeyId: 'mock-access-key',
-        secretAccessKey: 'mock-secret-key',
-      })),
-    },
-  })),
-  PutObjectCommand: jest.fn().mockImplementation((params) => params),
-  GetObjectCommand: jest.fn().mockImplementation((params) => params),
-}));
-
-jest.mock('@aws-sdk/s3-request-presigner', () => ({
-  getSignedUrl: jest.fn(() => Promise.resolve('https://mock-signed-url.com')),
-}));
-
 describe('S3 Module', () => {
   beforeEach(() => {
+    // Reset all mocks before each test
     jest.clearAllMocks();
+    
+    // Set up mock implementations
+    mockS3Client.mockImplementation(() => ({
+      send: jest.fn(),
+      config: {
+        region: jest.fn(() => Promise.resolve('us-east-1')),
+        credentials: jest.fn(() => Promise.resolve({
+          accessKeyId: 'mock-access-key',
+          secretAccessKey: 'mock-secret-key',
+        })),
+      },
+    }));
+    
+    mockPutObjectCommand.mockImplementation((params: any) => params);
+    mockGetObjectCommand.mockImplementation((params: any) => params);
+    mockGetSignedUrl.mockResolvedValue('https://mock-signed-url.com');
+  });
+
+  afterEach(() => {
+    jest.restoreAllMocks();
   });
 
   describe('verifyS3KeyOwnership', () => {

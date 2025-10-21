@@ -1,13 +1,12 @@
 module.exports = {
   preset: 'ts-jest/presets/default-esm',
-  testEnvironment: 'node',
+  testEnvironment: 'node', 
   roots: ['<rootDir>/src'],
   testMatch: ['**/*.test.ts'],
   moduleFileExtensions: ['ts', 'js', 'json'],
   extensionsToTreatAsEsm: ['.ts'],
   moduleNameMapper: {
     '^(\\.{1,2}/.*)\\.js$': '$1',
-    '^(\\.\\.\\./lib/.*)\\.js$': '$1',
   },
   transform: {
     '^.+\\.ts$': [
@@ -26,9 +25,6 @@ module.exports = {
     ],
   },
   maxWorkers: 1,
-  resetModules: true,
-  clearMocks: true,
-  restoreMocks: true,
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.test.ts',
