@@ -1,9 +1,9 @@
 // POST /loads/{id}/email - Send receipt email
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { getAuthContext, requireRole, canAccessLoad, logRequest } from '../lib/auth.js';
-import { getLoad, getSignature, getUser, getOrg } from '../lib/db.js';
-import { sendReceiptEmail } from '../lib/email.js';
-import { getDownloadUrl, getReceiptS3Key } from '../lib/s3.js';
+import { getAuthContext, requireRole, canAccessLoad, logRequest } from '../lib/auth';
+import { getLoad, getSignature, getUser, getOrg } from '../lib/db';
+import { sendReceiptEmail } from '../lib/email';
+import { getDownloadUrl, getReceiptS3Key } from '../lib/s3';
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   try {

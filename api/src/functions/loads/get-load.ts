@@ -1,7 +1,7 @@
 // GET /loads/{id} - Get load details
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { getAuthContext, verifyOrgAccess, canAccessLoad, logRequest } from '../lib/auth.js';
-import { getLoad } from '../lib/db.js';
+import { getAuthContext, verifyOrgAccess, canAccessLoad, logRequest } from '../lib/auth';
+import { getLoad } from '../lib/db';
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   try {

@@ -1,8 +1,8 @@
 // POST /loads/{id}/status - Update load status (driver action)
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { getAuthContext, requireRole, canAccessLoad, logRequest } from '../lib/auth.js';
-import { getLoad, updateItem, createLoadEvent } from '../lib/db.js';
-import { validateBody, statusUpdateSchema } from '../lib/validation.js';
+import { getAuthContext, requireRole, canAccessLoad, logRequest } from '../lib/auth';
+import { getLoad, updateItem, createLoadEvent } from '../lib/db';
+import { validateBody, statusUpdateSchema } from '../lib/validation';
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   try {

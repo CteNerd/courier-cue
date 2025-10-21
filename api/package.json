@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/local/server.ts",
-    "build": "tsc && esbuild src/functions/**/*.ts --bundle --platform=node --target=node20 --outdir=dist/functions --format=esm --external:@aws-sdk/*",
+    "build": "tsc && node build-bundle.mjs",
     "test": "jest",
     "test:int": "jest --testMatch='**/*.int.test.ts'",
     "typecheck": "tsc --noEmit",
@@ -37,11 +37,13 @@
     "@typescript-eslint/parser": "^6.17.0",
     "cors": "^2.8.5",
     "esbuild": "^0.19.11",
+    "esbuild-plugin-alias": "^0.2.1",
     "eslint": "^8.56.0",
     "express": "^5.1.0",
+    "glob": "^11.0.3",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.1",
-    "tsx": "^4.7.0",
+    "tsx": "^4.20.6",
     "typescript": "^5.3.3"
   }
 }

@@ -1,8 +1,8 @@
 // PATCH /org/settings - Update organization settings
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { getAuthContext, requireRole, verifyOrgAccess, logRequest } from '../lib/auth.js';
-import { updateItem } from '../lib/db.js';
-import { validateBody, updateOrgSettingsSchema } from '../lib/validation.js';
+import { getAuthContext, requireRole, verifyOrgAccess, logRequest } from '../lib/auth';
+import { updateItem } from '../lib/db';
+import { validateBody, updateOrgSettingsSchema } from '../lib/validation';
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   try {

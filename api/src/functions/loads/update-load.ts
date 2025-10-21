@@ -1,8 +1,8 @@
 // PATCH /loads/{id} - Update load
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { getAuthContext, requireRole, verifyOrgAccess, logRequest } from '../lib/auth.js';
-import { getLoad, updateItem, createLoadEvent } from '../lib/db.js';
-import { validateBody, updateLoadSchema } from '../lib/validation.js';
+import { getAuthContext, requireRole, verifyOrgAccess, logRequest } from '../lib/auth';
+import { getLoad, updateItem, createLoadEvent } from '../lib/db';
+import { validateBody, updateLoadSchema } from '../lib/validation';
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   try {

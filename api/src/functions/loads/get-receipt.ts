@@ -1,9 +1,9 @@
 // GET /loads/{id}/receipt.pdf - Generate and serve PDF receipt
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { getAuthContext, canAccessLoad, logRequest } from '../lib/auth.js';
-import { getLoad, getSignature, getUser, getOrg } from '../lib/db.js';
-import { generateReceipt } from '../lib/pdf.js';
-import { putObject, getReceiptS3Key, getObject } from '../lib/s3.js';
+import { getAuthContext, canAccessLoad, logRequest } from '../lib/auth';
+import { getLoad, getSignature, getUser, getOrg } from '../lib/db';
+import { generateReceipt } from '../lib/pdf';
+import { putObject, getReceiptS3Key, getObject } from '../lib/s3';
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   try {

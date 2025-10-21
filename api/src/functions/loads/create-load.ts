@@ -1,8 +1,8 @@
 // POST /loads - Create a new load
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { getAuthContext, requireRole, verifyOrgAccess, logRequest } from '../lib/auth.js';
-import { putItem, createLoadEvent } from '../lib/db.js';
-import { validateBody, createLoadSchema } from '../lib/validation.js';
+import { getAuthContext, requireRole, verifyOrgAccess, logRequest } from '../lib/auth';
+import { putItem, createLoadEvent } from '../lib/db';
+import { validateBody, createLoadSchema } from '../lib/validation';
 import { randomUUID } from 'crypto';
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {

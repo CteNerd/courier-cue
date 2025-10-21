@@ -1,9 +1,9 @@
 // POST /loads/{id}/signature/shipper/confirm - Confirm signature upload
 import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from 'aws-lambda';
-import { getAuthContext, requireRole, canAccessLoad, logRequest } from '../lib/auth.js';
-import { getLoad, saveSignature, updateItem, createLoadEvent } from '../lib/db.js';
-import { validateBody, signatureConfirmSchema } from '../lib/validation.js';
-import { verifyS3KeyOwnership, getObject, calculateHash } from '../lib/s3.js';
+import { getAuthContext, requireRole, canAccessLoad, logRequest } from '../lib/auth';
+import { getLoad, saveSignature, updateItem, createLoadEvent } from '../lib/db';
+import { validateBody, signatureConfirmSchema } from '../lib/validation';
+import { verifyS3KeyOwnership, getObject, calculateHash } from '../lib/s3';
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   try {
