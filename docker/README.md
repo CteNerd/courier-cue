@@ -1,0 +1,172 @@
+# Local Development Environment
+
+Docker Compose setup for local CourierCue development.
+
+## Services
+
+### DynamoDB Local
+- **Port**: 8000
+- **Purpose**: Local DynamoDB for testing
+- **Image**: amazon/dynamodb-local
+
+### LocalStack
+- **Port**: 4566 (main), 4510-4559 (extended)
+- **Services**: S3, SES
+- **Purpose**: Mock AWS services locally
+- **Image**: localstack/localstack
+
+### MailHog
+- **SMTP Port**: 1025
+- **Web UI Port**: 8025
+- **Purpose**: Email testing and debugging
+- **Image**: mailhog/mailhog
+
+## Usage
+
+### Start Services
+
+```bash
+docker compose -f docker/compose.local.yml up -d
+```
+
+### Stop Services
+
+```bash
+docker compose -f docker/compose.local.yml down
+```
+
+### View Logs
+
+```bash
+docker compose -f docker/compose.local.yml logs -f
+```
+
+### Seed Database
+
+After starting services, run the seed script:
+
+```bash
+bash docker/seed.sh
+```
+
+This creates:
+- DynamoDB table with GSIs
+- S3 bucket
+- Demo organization
+- Demo users (admin, driver)
+- Sample load
+
+## Accessing Services
+
+### DynamoDB Local
+
+List tables:
+```bash
+aws dynamodb list-tables \
+  --endpoint-url http://localhost:8000
+```
+
+Scan table:
+```bash
+aws dynamodb scan \
+  --endpoint-url http://localhost:8000 \
+  --table-name couriercue-dev-main
+```
+
+### LocalStack S3
+
+List buckets:
+```bash
+aws s3 ls \
+  --endpoint-url http://localhost:4566
+```
+
+Upload file:
+```bash
+aws s3 cp file.png s3://couriercue-dev-assets/test/ \
+  --endpoint-url http://localhost:4566
+```
+
+### MailHog
+
+View sent emails:
+- Open http://localhost:8025 in browser
+- All emails sent via SMTP on port 1025 appear here
+
+## Demo Data
+
+The seed script creates:
+
+**Organization**: demo-org
+- Name: Demo Organization
+- Email: noreply@demo.com
+
+**Users**:
+- Admin: admin@demo.com (admin-123)
+- Driver: driver@demo.com (driver-456)
+
+**Load**: Sample assigned load for driver
+
+## Environment Variables
+
+When running API locally, use:
+
+```bash
+# .env
+AWS_ACCESS_KEY_ID=test
+AWS_SECRET_ACCESS_KEY=test
+AWS_DEFAULT_REGION=us-east-1
+DYNAMODB_ENDPOINT=http://localhost:8000
+S3_ENDPOINT=http://localhost:4566
+SES_ENDPOINT=http://localhost:4566
+TABLE_NAME=couriercue-dev-main
+ASSETS_BUCKET=couriercue-dev-assets
+```
+
+## Troubleshooting
+
+### Services won't start
+
+Check if ports are already in use:
+```bash
+lsof -i :8000  # DynamoDB
+lsof -i :4566  # LocalStack
+lsof -i :8025  # MailHog
+```
+
+### Can't connect to services
+
+Ensure services are healthy:
+```bash
+docker compose -f docker/compose.local.yml ps
+```
+
+### Data persistence
+
+Data is stored in memory by default. To persist:
+1. Remove `-inMemory` flag from DynamoDB command
+2. Add volume mounts for LocalStack
+
+### Reset everything
+
+```bash
+docker compose -f docker/compose.local.yml down -v
+docker compose -f docker/compose.local.yml up -d
+bash docker/seed.sh
+```
+
+## Integration Tests
+
+Integration tests use these services:
+
+```bash
+# Start services
+docker compose -f docker/compose.local.yml up -d
+
+# Run tests
+cd api
+pnpm test:int
+
+cd ../web  
+pnpm test:int
+```

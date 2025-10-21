@@ -1,0 +1,147 @@
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  release:
+    types: [published]
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-dev:
+    name: Deploy to Dev
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    environment: dev
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: |
+          pnpm --filter api build
+          pnpm --filter web build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Deploy CloudFormation stack
+        run: |
+          aws cloudformation deploy \
+            --template-file infra/stack.yaml \
+            --stack-name couriercue-dev \
+            --parameter-overrides Env=dev \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --no-fail-on-empty-changeset
+
+      - name: Get stack outputs
+        id: stack-outputs
+        run: |
+          WEB_BUCKET=$(aws cloudformation describe-stacks \
+            --stack-name couriercue-dev \
+            --query 'Stacks[0].Outputs[?OutputKey==`WebBucket`].OutputValue' \
+            --output text)
+          echo "WEB_BUCKET=$WEB_BUCKET" >> $GITHUB_OUTPUT
+
+      - name: Deploy web app to S3
+        run: |
+          aws s3 sync web/dist/ s3://${{ steps.stack-outputs.outputs.WEB_BUCKET }} --delete
+
+      - name: Invalidate CloudFront cache (if exists)
+        run: |
+          DISTRIBUTION_ID=$(aws cloudfront list-distributions \
+            --query "DistributionList.Items[?Origins.Items[0].DomainName=='${{ steps.stack-outputs.outputs.WEB_BUCKET }}.s3.amazonaws.com'].Id" \
+            --output text)
+          if [ ! -z "$DISTRIBUTION_ID" ]; then
+            aws cloudfront create-invalidation \
+              --distribution-id $DISTRIBUTION_ID \
+              --paths "/*"
+          fi
+
+  deploy-prod:
+    name: Deploy to Prod
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    environment: prod
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: |
+          pnpm --filter api build
+          pnpm --filter web build
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: us-east-1
+
+      - name: Deploy CloudFormation stack
+        run: |
+          aws cloudformation deploy \
+            --template-file infra/stack.yaml \
+            --stack-name couriercue-prod \
+            --parameter-overrides Env=prod \
+            --capabilities CAPABILITY_NAMED_IAM \
+            --no-fail-on-empty-changeset
+
+      - name: Get stack outputs
+        id: stack-outputs
+        run: |
+          WEB_BUCKET=$(aws cloudformation describe-stacks \
+            --stack-name couriercue-prod \
+            --query 'Stacks[0].Outputs[?OutputKey==`WebBucket`].OutputValue' \
+            --output text)
+          echo "WEB_BUCKET=$WEB_BUCKET" >> $GITHUB_OUTPUT
+
+      - name: Deploy web app to S3
+        run: |
+          aws s3 sync web/dist/ s3://${{ steps.stack-outputs.outputs.WEB_BUCKET }} --delete
+
+      - name: Invalidate CloudFront cache (if exists)
+        run: |
+          DISTRIBUTION_ID=$(aws cloudfront list-distributions \
+            --query "DistributionList.Items[?Origins.Items[0].DomainName=='${{ steps.stack-outputs.outputs.WEB_BUCKET }}.s3.amazonaws.com'].Id" \
+            --output text)
+          if [ ! -z "$DISTRIBUTION_ID" ]; then
+            aws cloudfront create-invalidation \
+              --distribution-id $DISTRIBUTION_ID \
+              --paths "/*"
+          fi
