@@ -165,7 +165,7 @@ jobs:
         run: pnpm --filter web build
 
       - name: Upload API build artifacts
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: api-dist
           path: api/dist/
