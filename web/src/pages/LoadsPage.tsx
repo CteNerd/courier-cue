@@ -6,15 +6,6 @@ import { useState } from 'react';
 
 export default function LoadsPage() {
   const { currentUser } = useUser();
-  
-  // Redirect drivers to their specific loads page
-  if (!currentUser) return null;
-  
-  if (currentUser.role === 'driver') {
-    window.location.href = '/driver/loads';
-    return null;
-  }
-
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [selectedLoadForAssignment, setSelectedLoadForAssignment] = useState<Load | null>(null);
@@ -26,6 +17,14 @@ export default function LoadsPage() {
       getLoadsByStatus('COMPLETED')
     );
   });
+  
+  // Redirect drivers to their specific loads page
+  if (!currentUser) return null;
+  
+  if (currentUser.role === 'driver') {
+    window.location.href = '/driver/loads';
+    return null;
+  }
 
   // Mock driver list - in real app this would come from API
   const availableDrivers = [

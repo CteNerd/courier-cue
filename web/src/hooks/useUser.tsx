@@ -63,7 +63,7 @@ export const DEMO_USERS_WITH_PASSWORDS: DemoUserWithPassword[] = [
   },
 ];
 
-export const DEMO_USERS: User[] = DEMO_USERS_WITH_PASSWORDS.map(({ password, ...user }) => user);
+export const DEMO_USERS: User[] = DEMO_USERS_WITH_PASSWORDS.map(({ password: _password, ...user }) => user);
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
@@ -91,7 +91,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     );
     
     if (user) {
-      const { password: _, ...userWithoutPassword } = user;
+      const { password: _password, ...userWithoutPassword } = user;
       setCurrentUser(userWithoutPassword);
       localStorage.setItem('currentUser', JSON.stringify(userWithoutPassword));
       return true;

@@ -5,7 +5,6 @@ import { putItem } from '../lib/db.js';
 import { validateBody, inviteUserSchema } from '../lib/validation.js';
 import { createCognitoUser } from '../lib/cognito.js';
 import { sendInviteEmail } from '../lib/email.js';
-import { randomUUID } from 'crypto';
 
 export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> => {
   try {

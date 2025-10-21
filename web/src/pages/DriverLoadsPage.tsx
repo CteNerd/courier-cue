@@ -9,15 +9,17 @@ export default function DriverLoadsPage() {
   const [myLoads, setMyLoads] = useState<Load[]>([]);
   const [selectedLoad, setSelectedLoad] = useState<Load | null>(null);
   const [showDetails, setShowDetails] = useState(false);
+
+  // Initialize loads on component mount
+  useEffect(() => {
+    if (currentUser) {
+      setMyLoads(getLoadsByDriver(currentUser.userId));
+    }
+  }, [currentUser]);
   
   if (!currentUser || currentUser.role !== 'driver') {
     return <Navigate to="/login" replace />;
   }
-
-  // Initialize loads on component mount
-  useEffect(() => {
-    setMyLoads(getLoadsByDriver(currentUser.userId));
-  }, [currentUser.userId]);
 
   // Handle URL parameters for filtering
   const urlParams = new URLSearchParams(window.location.search);
