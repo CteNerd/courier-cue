@@ -7,7 +7,16 @@ import {
 
 // Mock AWS SDK modules
 jest.mock('@aws-sdk/client-s3', () => ({
-  S3Client: jest.fn().mockImplementation(() => ({})),
+  S3Client: jest.fn().mockImplementation(() => ({
+    send: jest.fn(),
+    config: {
+      region: jest.fn(() => Promise.resolve('us-east-1')),
+      credentials: jest.fn(() => Promise.resolve({
+        accessKeyId: 'mock-access-key',
+        secretAccessKey: 'mock-secret-key',
+      })),
+    },
+  })),
   PutObjectCommand: jest.fn().mockImplementation((params) => params),
   GetObjectCommand: jest.fn().mockImplementation((params) => params),
 }));
@@ -17,6 +26,10 @@ jest.mock('@aws-sdk/s3-request-presigner', () => ({
 }));
 
 describe('S3 Module', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
   describe('verifyS3KeyOwnership', () => {
     it('should return true for valid orgId prefix', () => {
       const s3Key = 'org123/load456/signature.png';
