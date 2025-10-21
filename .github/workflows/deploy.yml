@@ -70,11 +70,19 @@ jobs:
         run: |
           DISTRIBUTION_ID=$(aws cloudfront list-distributions \
             --query "DistributionList.Items[?Origins.Items[0].DomainName=='${{ steps.stack-outputs.outputs.WEB_BUCKET }}.s3.amazonaws.com'].Id" \
-            --output text)
-          if [ ! -z "$DISTRIBUTION_ID" ]; then
-            aws cloudfront create-invalidation \
-              --distribution-id $DISTRIBUTION_ID \
-              --paths "/*"
+            --output text 2>/dev/null || echo "")
+          if [ ! -z "$DISTRIBUTION_ID" ] && [ "$DISTRIBUTION_ID" != "None" ]; then
+            echo "Found CloudFront distribution: $DISTRIBUTION_ID"
+            if aws cloudfront get-distribution --id "$DISTRIBUTION_ID" >/dev/null 2>&1; then
+              aws cloudfront create-invalidation \
+                --distribution-id $DISTRIBUTION_ID \
+                --paths "/*"
+              echo "CloudFront cache invalidated successfully"
+            else
+              echo "Distribution $DISTRIBUTION_ID does not exist or is not accessible"
+            fi
+          else
+            echo "No CloudFront distribution found for bucket ${{ steps.stack-outputs.outputs.WEB_BUCKET }}"
           fi
 
   deploy-prod:
@@ -138,9 +146,17 @@ jobs:
         run: |
           DISTRIBUTION_ID=$(aws cloudfront list-distributions \
             --query "DistributionList.Items[?Origins.Items[0].DomainName=='${{ steps.stack-outputs.outputs.WEB_BUCKET }}.s3.amazonaws.com'].Id" \
-            --output text)
-          if [ ! -z "$DISTRIBUTION_ID" ]; then
-            aws cloudfront create-invalidation \
-              --distribution-id $DISTRIBUTION_ID \
-              --paths "/*"
+            --output text 2>/dev/null || echo "")
+          if [ ! -z "$DISTRIBUTION_ID" ] && [ "$DISTRIBUTION_ID" != "None" ]; then
+            echo "Found CloudFront distribution: $DISTRIBUTION_ID"
+            if aws cloudfront get-distribution --id "$DISTRIBUTION_ID" >/dev/null 2>&1; then
+              aws cloudfront create-invalidation \
+                --distribution-id $DISTRIBUTION_ID \
+                --paths "/*"
+              echo "CloudFront cache invalidated successfully"
+            else
+              echo "Distribution $DISTRIBUTION_ID does not exist or is not accessible"
+            fi
+          else
+            echo "No CloudFront distribution found for bucket ${{ steps.stack-outputs.outputs.WEB_BUCKET }}"
           fi
