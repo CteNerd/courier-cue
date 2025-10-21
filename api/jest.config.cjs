@@ -13,7 +13,6 @@ module.exports = {
       'ts-jest',
       {
         useESM: true,
-        isolatedModules: true,
         diagnostics: {
           ignoreCodes: [151002],
         },
@@ -25,6 +24,9 @@ module.exports = {
     ],
   },
   maxWorkers: 1,
+  testTimeout: 10000,
+  forceExit: true,
+  detectOpenHandles: true,
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.test.ts',
