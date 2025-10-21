@@ -27,6 +27,8 @@ module.exports = {
   testTimeout: 10000,
   forceExit: true,
   detectOpenHandles: true,
+  clearMocks: true,
+  restoreMocks: true,
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.test.ts',

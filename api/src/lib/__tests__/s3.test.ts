@@ -1,22 +1,42 @@
-import { describe, it, expect, jest, beforeEach, afterEach } from '@jest/globals';
+import { describe, it, expect, jest, beforeAll, beforeEach, afterEach } from '@jest/globals';
 
-// Mock AWS SDK modules BEFORE importing the module under test
+// Set up environment to prevent credential loading
+beforeAll(() => {
+  // Set mock AWS credentials to prevent credential provider from running
+  process.env.AWS_ACCESS_KEY_ID = 'mock-access-key';
+  process.env.AWS_SECRET_ACCESS_KEY = 'mock-secret-key';
+  process.env.AWS_REGION = 'us-east-1';
+  process.env.AWS_DEFAULT_REGION = 'us-east-1';
+  process.env.AWS_SDK_LOAD_CONFIG = '0';
+});
+
+// Create comprehensive mocks before any imports
+const mockSend = jest.fn() as jest.MockedFunction<any>;
 const mockGetSignedUrl = jest.fn() as jest.MockedFunction<any>;
-const mockS3Client = jest.fn() as jest.MockedFunction<any>;
-const mockPutObjectCommand = jest.fn() as jest.MockedFunction<any>;
-const mockGetObjectCommand = jest.fn() as jest.MockedFunction<any>;
 
-jest.mock('@aws-sdk/client-s3', () => ({
-  S3Client: mockS3Client,
-  PutObjectCommand: mockPutObjectCommand,
-  GetObjectCommand: mockGetObjectCommand,
-}));
+// Mock the entire AWS SDK modules with factory functions
+jest.mock('@aws-sdk/client-s3', () => {
+  return {
+    S3Client: jest.fn(() => ({
+      send: mockSend,
+      config: {
+        region: () => Promise.resolve('us-east-1'),
+        credentials: () => Promise.resolve({
+          accessKeyId: 'mock-access-key',
+          secretAccessKey: 'mock-secret-key',
+        }),
+      },
+    })),
+    PutObjectCommand: jest.fn((params: any) => ({ ...params, __type: 'PutObjectCommand' })),
+    GetObjectCommand: jest.fn((params: any) => ({ ...params, __type: 'GetObjectCommand' })),
+  };
+});
 
 jest.mock('@aws-sdk/s3-request-presigner', () => ({
   getSignedUrl: mockGetSignedUrl,
 }));
 
-// Now import the module under test
+// Import after mocks are established
 import {
   verifyS3KeyOwnership,
   getReceiptS3Key,
@@ -28,20 +48,8 @@ describe('S3 Module', () => {
     // Reset all mocks before each test
     jest.clearAllMocks();
     
-    // Set up mock implementations
-    mockS3Client.mockImplementation(() => ({
-      send: jest.fn(),
-      config: {
-        region: jest.fn(() => Promise.resolve('us-east-1')),
-        credentials: jest.fn(() => Promise.resolve({
-          accessKeyId: 'mock-access-key',
-          secretAccessKey: 'mock-secret-key',
-        })),
-      },
-    }));
-    
-    mockPutObjectCommand.mockImplementation((params: any) => params);
-    mockGetObjectCommand.mockImplementation((params: any) => params);
+    // Set up mock return values
+    mockSend.mockResolvedValue({});
     mockGetSignedUrl.mockResolvedValue('https://mock-signed-url.com');
   });
 
