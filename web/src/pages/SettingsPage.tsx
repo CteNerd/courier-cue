@@ -236,7 +236,7 @@ function CustomFieldForm({ isOpen, onClose, onSubmit, editingField }: CustomFiel
       <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
         <div className="mt-3">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="text-lg font-medium text-gray-900">
+            <h3 className="text-lg font-medium text-gray-900 dark:text-white">
               {editingField ? 'Edit Custom Field' : 'Add Custom Field'}
             </h3>
             <button
@@ -249,23 +249,23 @@ function CustomFieldForm({ isOpen, onClose, onSubmit, editingField }: CustomFiel
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">Field Name</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Field Name</label>
               <input
                 type="text"
                 required
                 value={formData.name}
                 onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                 placeholder="Special Instructions"
               />
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Field Type</label>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Field Type</label>
               <select
                 value={formData.type}
                 onChange={(e) => setFormData(prev => ({ ...prev, type: e.target.value as any }))}
-                className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               >
                 <option value="text">Text</option>
                 <option value="number">Number</option>
@@ -276,7 +276,7 @@ function CustomFieldForm({ isOpen, onClose, onSubmit, editingField }: CustomFiel
 
             {formData.type === 'select' && (
               <div>
-                <label className="block text-sm font-medium text-gray-700">Options</label>
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Options</label>
                 <div className="space-y-2">
                   {formData.options.map((option, index) => (
                     <div key={index} className="flex gap-2">
@@ -284,14 +284,14 @@ function CustomFieldForm({ isOpen, onClose, onSubmit, editingField }: CustomFiel
                         type="text"
                         value={option}
                         onChange={(e) => updateOption(index, e.target.value)}
-                        className="flex-1 border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                        className="flex-1 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                         placeholder={`Option ${index + 1}`}
                       />
                       {formData.options.length > 1 && (
                         <button
                           type="button"
                           onClick={() => removeOption(index)}
-                          className="text-red-600 hover:text-red-800"
+                          className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
                         >
                           Remove
                         </button>
@@ -301,7 +301,7 @@ function CustomFieldForm({ isOpen, onClose, onSubmit, editingField }: CustomFiel
                   <button
                     type="button"
                     onClick={addOption}
-                    className="text-blue-600 hover:text-blue-800 text-sm"
+                    className="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm"
                   >
                     + Add Option
                   </button>
@@ -314,9 +314,9 @@ function CustomFieldForm({ isOpen, onClose, onSubmit, editingField }: CustomFiel
                 type="checkbox"
                 checked={formData.required}
                 onChange={(e) => setFormData(prev => ({ ...prev, required: e.target.checked }))}
-                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                className="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded"
               />
-              <label className="ml-2 block text-sm text-gray-900">
+              <label className="ml-2 block text-sm text-gray-900 dark:text-gray-100">
                 Required field
               </label>
             </div>
@@ -496,72 +496,72 @@ export default function SettingsPage() {
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Email Address</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Email Address</label>
                       <input
                         type="email"
                         value={settings.companyEmail}
                         onChange={(e) => updateSettings('companyEmail', e.target.value)}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Website</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Website</label>
                       <input
                         type="url"
                         value={settings.website}
                         onChange={(e) => updateSettings('website', e.target.value)}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <h4 className="text-md font-medium text-gray-900 mb-4">Company Address</h4>
+                    <h4 className="text-md font-medium text-gray-900 dark:text-white mb-4">Company Address</h4>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="md:col-span-2">
-                        <label className="block text-sm font-medium text-gray-700">Street Address</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Street Address</label>
                         <input
                           type="text"
                           value={settings.companyAddress.street}
                           onChange={(e) => updateNestedSettings('companyAddress', 'street', e.target.value)}
-                          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                          className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">City</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">City</label>
                         <input
                           type="text"
                           value={settings.companyAddress.city}
                           onChange={(e) => updateNestedSettings('companyAddress', 'city', e.target.value)}
-                          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                          className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">State</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">State</label>
                         <input
                           type="text"
                           value={settings.companyAddress.state}
                           onChange={(e) => updateNestedSettings('companyAddress', 'state', e.target.value)}
-                          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                          className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">ZIP Code</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">ZIP Code</label>
                         <input
                           type="text"
                           value={settings.companyAddress.zip}
                           onChange={(e) => updateNestedSettings('companyAddress', 'zip', e.target.value)}
-                          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                          className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                         />
                       </div>
                       <div>
-                        <label className="block text-sm font-medium text-gray-700">Country</label>
+                        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Country</label>
                         <input
                           type="text"
                           value={settings.companyAddress.country}
                           onChange={(e) => updateNestedSettings('companyAddress', 'country', e.target.value)}
-                          className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                          className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                         />
                       </div>
                     </div>
@@ -571,35 +571,35 @@ export default function SettingsPage() {
 
               {activeTab === 'operations' && (
                 <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-gray-900">Operational Settings</h3>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">Operational Settings</h3>
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Operating Hours Start</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Operating Hours Start</label>
                       <input
                         type="time"
                         value={settings.operatingHours.start}
                         onChange={(e) => updateNestedSettings('operatingHours', 'start', e.target.value)}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Operating Hours End</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Operating Hours End</label>
                       <input
                         type="time"
                         value={settings.operatingHours.end}
                         onChange={(e) => updateNestedSettings('operatingHours', 'end', e.target.value)}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Timezone</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Timezone</label>
                       <select
                         value={settings.operatingHours.timezone}
                         onChange={(e) => updateNestedSettings('operatingHours', 'timezone', e.target.value)}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                       >
                         <option value="America/Chicago">Central Time</option>
                         <option value="America/New_York">Eastern Time</option>
@@ -610,12 +610,12 @@ export default function SettingsPage() {
                   </div>
 
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Delivery Radius (miles)</label>
+                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Delivery Radius (miles)</label>
                     <input
                       type="number"
                       value={settings.deliveryRadius}
                       onChange={(e) => updateSettings('deliveryRadius', parseInt(e.target.value))}
-                      className="mt-1 block w-32 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                      className="mt-1 block w-32 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                     />
                   </div>
                 </div>
@@ -623,7 +623,7 @@ export default function SettingsPage() {
 
               {activeTab === 'notifications' && (
                 <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-gray-900">Notification Preferences</h3>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">Notification Preferences</h3>
                   
                   <div>
                     <h4 className="text-md font-medium text-gray-900 mb-4">Email Notifications</h4>
@@ -634,9 +634,9 @@ export default function SettingsPage() {
                             type="checkbox"
                             checked={value}
                             onChange={(e) => updateNestedSettings('emailNotifications', key, e.target.checked)}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded"
                           />
-                          <label className="ml-2 block text-sm text-gray-900">
+                          <label className="ml-2 block text-sm text-gray-900 dark:text-white">
                             {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                           </label>
                         </div>
@@ -653,9 +653,9 @@ export default function SettingsPage() {
                             type="checkbox"
                             checked={value}
                             onChange={(e) => updateNestedSettings('smsNotifications', key, e.target.checked)}
-                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                            className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded"
                           />
-                          <label className="ml-2 block text-sm text-gray-900">
+                          <label className="ml-2 block text-sm text-gray-900 dark:text-white">
                             {key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                           </label>
                         </div>
@@ -667,7 +667,7 @@ export default function SettingsPage() {
 
               {activeTab === 'loads' && (
                 <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-gray-900">Load Management Settings</h3>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">Load Management Settings</h3>
                   
                   <div className="space-y-4">
                     <div className="flex items-center">
@@ -675,9 +675,9 @@ export default function SettingsPage() {
                         type="checkbox"
                         checked={settings.autoAssignLoads}
                         onChange={(e) => updateSettings('autoAssignLoads', e.target.checked)}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded"
                       />
-                      <label className="ml-2 block text-sm text-gray-900">
+                      <label className="ml-2 block text-sm text-gray-900 dark:text-white">
                         Auto-assign loads to available drivers
                       </label>
                     </div>
@@ -687,9 +687,9 @@ export default function SettingsPage() {
                         type="checkbox"
                         checked={settings.requireSignature}
                         onChange={(e) => updateSettings('requireSignature', e.target.checked)}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded"
                       />
-                      <label className="ml-2 block text-sm text-gray-900">
+                      <label className="ml-2 block text-sm text-gray-900 dark:text-white">
                         Require signature for delivery confirmation
                       </label>
                     </div>
@@ -699,20 +699,20 @@ export default function SettingsPage() {
                         type="checkbox"
                         checked={settings.allowPartialDeliveries}
                         onChange={(e) => updateSettings('allowPartialDeliveries', e.target.checked)}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded"
                       />
-                      <label className="ml-2 block text-sm text-gray-900">
+                      <label className="ml-2 block text-sm text-gray-900 dark:text-white">
                         Allow partial deliveries
                       </label>
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Maximum loads per driver</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Maximum loads per driver</label>
                       <input
                         type="number"
                         value={settings.maxLoadsPerDriver}
                         onChange={(e) => updateSettings('maxLoadsPerDriver', parseInt(e.target.value))}
-                        className="mt-1 block w-32 border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-32 border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                       />
                     </div>
                   </div>
@@ -721,11 +721,11 @@ export default function SettingsPage() {
 
               {activeTab === 'billing' && (
                 <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-gray-900">Billing & Pricing Settings</h3>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">Billing & Pricing Settings</h3>
                   
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Default Hourly Rate</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Default Hourly Rate</label>
                       <div className="mt-1 relative rounded-md shadow-sm">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                           <span className="text-gray-500 sm:text-sm">$</span>
@@ -735,13 +735,13 @@ export default function SettingsPage() {
                           step="0.01"
                           value={settings.defaultHourlyRate}
                           onChange={(e) => updateSettings('defaultHourlyRate', parseFloat(e.target.value))}
-                          className="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                          className="pl-7 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                         />
                       </div>
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Mileage Rate</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Mileage Rate</label>
                       <div className="mt-1 relative rounded-md shadow-sm">
                         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                           <span className="text-gray-500 sm:text-sm">$</span>
@@ -751,17 +751,17 @@ export default function SettingsPage() {
                           step="0.01"
                           value={settings.mileageRate}
                           onChange={(e) => updateSettings('mileageRate', parseFloat(e.target.value))}
-                          className="pl-7 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                          className="pl-7 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                         />
                       </div>
                     </div>
                     
                     <div>
-                      <label className="block text-sm font-medium text-gray-700">Currency</label>
+                      <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Currency</label>
                       <select
                         value={settings.currency}
                         onChange={(e) => updateSettings('currency', e.target.value)}
-                        className="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+                        className="mt-1 block w-full border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
                       >
                         <option value="USD">USD ($)</option>
                         <option value="EUR">EUR (€)</option>
@@ -775,7 +775,7 @@ export default function SettingsPage() {
 
               {activeTab === 'integrations' && (
                 <div className="space-y-6">
-                  <h3 className="text-lg font-medium text-gray-900">Integration Settings</h3>
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-white">Integration Settings</h3>
                   
                   <div className="space-y-4">
                     <div className="flex items-center">
@@ -783,9 +783,9 @@ export default function SettingsPage() {
                         type="checkbox"
                         checked={settings.gpsTracking}
                         onChange={(e) => updateSettings('gpsTracking', e.target.checked)}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded"
                       />
-                      <label className="ml-2 block text-sm text-gray-900">
+                      <label className="ml-2 block text-sm text-gray-900 dark:text-white">
                         Enable GPS tracking for drivers
                       </label>
                     </div>
@@ -795,9 +795,9 @@ export default function SettingsPage() {
                         type="checkbox"
                         checked={settings.routeOptimization}
                         onChange={(e) => updateSettings('routeOptimization', e.target.checked)}
-                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 dark:border-gray-600 dark:bg-gray-700 rounded"
                       />
-                      <label className="ml-2 block text-sm text-gray-900">
+                      <label className="ml-2 block text-sm text-gray-900 dark:text-white">
                         Enable route optimization
                       </label>
                     </div>
@@ -808,7 +808,7 @@ export default function SettingsPage() {
               {activeTab === 'custom' && (
                 <div className="space-y-6">
                   <div className="flex justify-between items-center">
-                    <h3 className="text-lg font-medium text-gray-900">Custom Fields</h3>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white">Custom Fields</h3>
                     <button
                       onClick={() => setShowCustomFieldForm(true)}
                       className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm"
@@ -829,7 +829,7 @@ export default function SettingsPage() {
                       {settings.customFields.map(field => (
                         <div key={field.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                           <div>
-                            <h4 className="font-medium text-gray-900">{field.name}</h4>
+                            <h4 className="font-medium text-gray-900 dark:text-white">{field.name}</h4>
                             <p className="text-sm text-gray-500">
                               Type: {field.type} {field.required && '(Required)'}
                             </p>
