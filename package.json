@@ -1,0 +1,28 @@
+{
+  "name": "couriercue",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Multi-tenant SaaS for digitizing delivery slips",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/CteNerd/courier-cue.git"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "scripts": {
+    "dev:web": "pnpm --filter web dev",
+    "dev:api": "pnpm --filter api dev",
+    "dev:stack": "bash docker/seed.sh",
+    "build:web": "pnpm --filter web build",
+    "build:api": "pnpm --filter api build",
+    "test": "pnpm -r test",
+    "test:int": "pnpm -r test:int",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "pnpm -r lint",
+    "format": "prettier --write \"**/*.{ts,tsx,js,json,md,yaml,yml}\""
+  },
+  "devDependencies": {
+    "prettier": "^3.1.1"
+  }
+}
