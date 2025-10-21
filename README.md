@@ -1,15 +1,33 @@
 # CourierCue
 
-Multi-tenant SaaS POC for digitizing delivery slips and driver workflow. Built for loading companies to manage pick-up/delivery operations.
+Multi-tenant SaaS platform for digitizing delivery slips and driver workflow management. Built for loading companies to streamline pick-up/delivery operations with real-time tracking and comprehensive user management.
 
-## Features
+## ✨ Features
 
-- **Multi-tenant architecture** with row-level security
-- **Role-based access control** (Platform Admin, Org Admin, Co-Admin, Driver)
+### 🏢 **Multi-Tenant Organization Management**
+- **Role-based access control** (Admin, Co-Admin, Driver)
+- **Organization settings** with configurable preferences
+- **User management** with invite/permission system
+- **Custom fields** for load-specific data collection
+
+### 📦 **Load Management**
+- **Load creation and assignment** to drivers
+- **Real-time status tracking** (Assigned → En Route → Delivered → Completed)
 - **Digital signature capture** with geolocation
 - **PDF receipt generation** and email delivery
-- **Real-time load status tracking**
-- **Two deployment environments**: dev and prod
+- **Priority-based load management**
+
+### 🎯 **User Experience**
+- **Dark/Light mode toggle** with system preference detection
+- **Responsive design** optimized for desktop and mobile
+- **Interactive dashboard** with load statistics
+- **Demo environment** with pre-configured test users
+
+### 🛠 **Developer Experience**
+- **TypeScript** throughout the entire stack
+- **Hot module reloading** for rapid development
+- **Comprehensive testing** setup
+- **Docker-based local development** environment
 
 ## Architecture
 
@@ -68,26 +86,38 @@ pnpm dev:stack
 In separate terminals:
 
 ```bash
-# Terminal 1: API
-cd api
-pnpm dev
+# Terminal 1: API (from root directory)
+pnpm dev:api
+# or: cd api && pnpm dev
 
-# Terminal 2: Web
-cd web
-pnpm dev
+# Terminal 2: Web (from root directory)
+pnpm dev:web
+# or: cd web && pnpm dev
 ```
 
 6. **Access the application**
 
 - Web app: http://localhost:5173
+- API server: http://localhost:3001
+- API health check: http://localhost:3001/health
 - MailHog UI: http://localhost:8025
 - DynamoDB Admin: http://localhost:8000
 - LocalStack: http://localhost:4566
 
 ### Demo Credentials (Local)
 
-- **Admin**: admin@demo.com
-- **Driver**: driver@demo.com
+The application includes a comprehensive demo environment with pre-configured users:
+
+- **Admin User**: `admin@demo.com` / `admin123`
+  - Full system access and user management
+- **Co-Admin User**: `coadmin@demo.com` / `coadmin123`  
+  - Load management and driver oversight
+- **Driver Users**: 
+  - `driver1@demo.com` / `driver123`
+  - `driver2@demo.com` / `driver123`
+  - `driver3@demo.com` / `driver123`
+
+Each role demonstrates different permission levels and UI experiences.
 
 ## Project Structure
 
@@ -96,7 +126,8 @@ couriercue/
 ├── infra/              # CloudFormation infrastructure
 ├── api/                # Lambda backend functions
 │   ├── src/functions/  # API handlers
-│   └── src/lib/        # Shared libraries
+│   ├── src/lib/        # Shared libraries
+│   └── src/local/      # Local development server
 ├── web/                # React frontend
 │   ├── src/pages/      # Page components
 │   ├── src/components/ # UI components
@@ -108,6 +139,30 @@ couriercue/
 ```
 
 ## Development
+
+### Workspace Commands
+
+From the root directory, you can run:
+
+```bash
+# Start API server
+pnpm dev:api
+
+# Start Web server
+pnpm dev:web
+
+# Seed database
+pnpm dev:stack
+
+# Run all tests
+pnpm test
+
+# Type check all packages
+pnpm typecheck
+
+# Lint all packages
+pnpm lint
+```
 
 ### Type Checking
 
@@ -247,6 +302,8 @@ See [api/README.md](api/README.md) for complete API documentation.
 
 - [x] Infrastructure setup (CloudFormation)
 - [x] API backend (Lambda + DynamoDB)
+- [x] Local development environment (Docker + seed data)
+- [x] Local development server (Express wrapper for Lambda functions)
 - [x] Frontend skeleton (React + Vite)
 - [ ] Complete Admin Portal UI
 - [ ] Complete Driver App UI
@@ -255,6 +312,34 @@ See [api/README.md](api/README.md) for complete API documentation.
 - [ ] Email templates
 - [ ] E2E tests
 - [ ] Production deployment
+
+## Troubleshooting
+
+### Common Issues
+
+**1. Docker containers won't start**
+- Ensure Docker Desktop is running
+- Check ports aren't already in use: `lsof -i :8000,4566,8025`
+- Clean up volumes: `docker volume prune -f`
+
+**2. LocalStack "Device or resource busy" error**
+- Stop containers: `docker compose -f docker/compose.local.yml down`
+- Remove volumes: `docker volume prune -f`
+- Restart: `docker compose -f docker/compose.local.yml up -d`
+
+**3. API server won't start**
+- Install dependencies: `pnpm install` (from root)
+- Use workspace command: `pnpm dev:api` (from root)
+- Check if port 3001 is free: `lsof -i :3001`
+
+**4. "tsx: command not found" error**
+- Run `pnpm install` from the root directory
+- Dependencies must be installed via pnpm workspace
+
+**5. Package manager conflicts**
+- This project uses pnpm workspaces
+- Avoid mixing npm and pnpm commands
+- If needed, remove `node_modules` and reinstall with pnpm
 
 ## Contributing
 

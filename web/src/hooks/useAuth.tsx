@@ -10,6 +10,7 @@ import { setAuthToken } from '../lib/api';
 const USER_POOL_ID = import.meta.env.VITE_COGNITO_USER_POOL_ID || '';
 const CLIENT_ID = import.meta.env.VITE_COGNITO_CLIENT_ID || '';
 const COGNITO_DOMAIN = import.meta.env.VITE_COGNITO_DOMAIN || '';
+const IS_LOCAL_DEV = import.meta.env.VITE_LOCAL_DEV === 'true';
 const REDIRECT_URI = window.location.origin + '/callback';
 
 const userPool = new CognitoUserPool({
@@ -46,6 +47,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const checkAuth = async () => {
     try {
+      console.log('checkAuth called, VITE_LOCAL_DEV:', import.meta.env?.VITE_LOCAL_DEV);
+      
+      // For local development, use mock authentication
+      if (import.meta.env?.VITE_LOCAL_DEV === 'true') {
+        console.log('Using mock authentication');
+        // Mock admin user for local development
+        setUser({
+          userId: 'admin-123',
+          email: 'admin@demo.com',
+          orgId: 'demo-org',
+          role: 'admin',
+          displayName: 'Admin User',
+        });
+        setAuthToken('mock-token');
+        setIsLoading(false);
+        return;
+      }
+
       const cognitoUser = userPool.getCurrentUser();
       if (cognitoUser) {
         cognitoUser.getSession((err: Error | null, session: CognitoUserSession | null) => {

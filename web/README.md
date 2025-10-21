@@ -7,7 +7,7 @@ React + TypeScript frontend for CourierCue.
 - **React 18** - UI library
 - **TypeScript** - Type safety
 - **Vite** - Build tool and dev server
-- **TailwindCSS** - Styling
+- **TailwindCSS** - Styling with dark mode support
 - **Radix UI** - Accessible component primitives
 - **React Query** - Data fetching and caching
 - **React Router** - Client-side routing
@@ -28,16 +28,22 @@ pnpm install
 Create a `.env` file:
 
 ```bash
-VITE_API_BASE_URL=http://localhost:3000
+VITE_API_BASE_URL=http://localhost:3001
 VITE_COGNITO_USER_POOL_ID=us-east-1_xxxxxxxxx
 VITE_COGNITO_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
 VITE_COGNITO_DOMAIN=https://couriercue-dev-xxxxx.auth.us-east-1.amazoncognito.com
 ```
 
+**Note**: The API runs on port 3001 in local development.
+
 ### Start Dev Server
 
 ```bash
-pnpm dev
+# From project root (recommended)
+pnpm dev:web
+
+# Or from web directory
+cd web && pnpm dev
 ```
 
 Opens at http://localhost:5173
@@ -108,13 +114,21 @@ web/
 - JWT token management
 - Automatic token refresh
 - Role-based routing (admin vs driver)
+- Persistent authentication across browser sessions
+
+### User Experience
+
+- **Dark Mode Toggle**: System-wide dark/light theme switching
+- **Theme Persistence**: User preferences saved to localStorage
+- **System Integration**: Respects browser/OS dark mode preferences
+- **Responsive Design**: Mobile-first with adaptive layouts
 
 ### Admin Portal
 
 - **Dashboard**: KPI tiles, quick actions
-- **Loads**: List, filter, create, update loads
+- **Loads**: List, filter, create, update loads  
 - **Users**: Invite, manage, disable users
-- **Settings**: Org configuration
+- **Settings**: Org configuration with tabbed interface
 
 ### Driver App
 
@@ -125,12 +139,33 @@ web/
 
 ## Styling
 
-Uses Tailwind CSS with custom design system:
+Uses Tailwind CSS with comprehensive dark mode support:
 
-- Color variables defined in `globals.css`
-- Radix UI for accessible primitives
-- Mobile-first responsive design
-- Dark mode ready (tokens defined)
+- **Dark Mode**: Complete dark/light theme implementation
+- **Theme System**: React Context API with localStorage persistence
+- **Design Tokens**: Color variables defined in `globals.css`
+- **Radix UI**: Accessible component primitives
+- **Mobile-first**: Responsive design with breakpoints
+- **Smooth Transitions**: Animated theme switching
+
+### Dark Mode Usage
+
+```typescript
+// Using the theme hook
+import { useTheme } from '../hooks/useTheme';
+
+function Component() {
+  const { isDarkMode, toggleDarkMode } = useTheme();
+  
+  return (
+    <div className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white">
+      <button onClick={toggleDarkMode}>
+        {isDarkMode ? 'Light Mode' : 'Dark Mode'}
+      </button>
+    </div>
+  );
+}
+```
 
 ## State Management
 

@@ -2,12 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BrowserRouter } from 'react-router-dom';
-import { UserProvider } from './hooks/useUser';
-import { ThemeProvider } from './hooks/useTheme';
+import { AuthProvider } from './hooks/useAuth';
 import App from './App';
 import './styles/globals.css';
-
-console.log('main.tsx executing...');
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -22,14 +19,10 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <ThemeProvider>
-          <UserProvider>
-            <App />
-          </UserProvider>
-        </ThemeProvider>
+        <AuthProvider>
+          <App />
+        </AuthProvider>
       </BrowserRouter>
     </QueryClientProvider>
   </React.StrictMode>
 );
-
-console.log('React app rendered');

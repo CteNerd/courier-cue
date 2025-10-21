@@ -46,7 +46,9 @@ docker compose -f docker/compose.local.yml logs -f
 After starting services, run the seed script:
 
 ```bash
-bash docker/seed.sh
+# From project root
+pnpm dev:stack
+# or: bash docker/seed.sh
 ```
 
 This creates:
@@ -125,6 +127,19 @@ ASSETS_BUCKET=couriercue-dev-assets
 
 ## Troubleshooting
 
+### LocalStack "Device or resource busy" error
+
+This is a common issue when LocalStack can't clean up its temp directory:
+
+```bash
+# Solution: Stop containers and clean up
+docker compose -f docker/compose.local.yml down
+docker volume prune -f
+docker compose -f docker/compose.local.yml up -d
+```
+
+**Root cause**: The original configuration used bind mounts that conflicted with LocalStack's internal directory management. This has been fixed by using named Docker volumes.
+
 ### Services won't start
 
 Check if ports are already in use:
@@ -141,6 +156,14 @@ Ensure services are healthy:
 docker compose -f docker/compose.local.yml ps
 ```
 
+All containers should show `Up` status. LocalStack may show `(health: starting)` briefly.
+
+### Seed script hangs on pager
+
+If the seed script gets stuck in a pager (like `less`):
+- Press `q` to quit the pager
+- Or disable paging: `export AWS_PAGER=""`
+
 ### Data persistence
 
 Data is stored in memory by default. To persist:
@@ -152,7 +175,7 @@ Data is stored in memory by default. To persist:
 ```bash
 docker compose -f docker/compose.local.yml down -v
 docker compose -f docker/compose.local.yml up -d
-bash docker/seed.sh
+pnpm dev:stack  # Re-seed database
 ```
 
 ## Integration Tests

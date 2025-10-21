@@ -65,19 +65,48 @@ WEB_URL=http://localhost:5173
 
 ## Development
 
+### Prerequisites
+
+Ensure you have the local stack running:
+
+```bash
+# From project root
+docker compose -f docker/compose.local.yml up -d
+pnpm dev:stack  # Seed database
+```
+
 ### Install Dependencies
 
 ```bash
+# From project root
 pnpm install
 ```
 
 ### Run Locally
 
 ```bash
-pnpm dev
+# From project root (recommended)
+pnpm dev:api
+
+# Or from api directory
+cd api && pnpm dev
 ```
 
-This starts a local development server that emulates the API Gateway and Lambda environment.
+This starts a local Express server on **http://localhost:3001** that:
+- Emulates API Gateway and Lambda environment
+- Provides mock JWT authentication
+- Routes requests to actual Lambda function handlers
+- Connects to local DynamoDB (port 8000) and LocalStack (port 4566)
+
+### Test API
+
+```bash
+# Health check
+curl http://localhost:3001/health
+
+# Test with mock auth (admin user)
+curl http://localhost:3001/org/settings
+```
 
 ### Build
 
