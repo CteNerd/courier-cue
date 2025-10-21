@@ -5,9 +5,15 @@ import {
   getSignatureUploadUrl,
 } from '../s3.js';
 
-// Mock AWS SDK
+// Mock AWS SDK modules
+jest.mock('@aws-sdk/client-s3', () => ({
+  S3Client: jest.fn().mockImplementation(() => ({})),
+  PutObjectCommand: jest.fn().mockImplementation((params) => params),
+  GetObjectCommand: jest.fn().mockImplementation((params) => params),
+}));
+
 jest.mock('@aws-sdk/s3-request-presigner', () => ({
-  getSignedUrl: () => Promise.resolve('https://mock-signed-url.com'),
+  getSignedUrl: jest.fn(() => Promise.resolve('https://mock-signed-url.com')),
 }));
 
 describe('S3 Module', () => {

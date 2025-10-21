@@ -15,6 +15,9 @@ module.exports = {
       {
         useESM: true,
         isolatedModules: true,
+        diagnostics: {
+          ignoreCodes: [151002],
+        },
         tsconfig: {
           skipLibCheck: true,
           moduleResolution: 'Node16',
@@ -22,6 +25,10 @@ module.exports = {
       },
     ],
   },
+  maxWorkers: 1,
+  resetModules: true,
+  clearMocks: true,
+  restoreMocks: true,
   collectCoverageFrom: [
     'src/**/*.ts',
     '!src/**/*.test.ts',
