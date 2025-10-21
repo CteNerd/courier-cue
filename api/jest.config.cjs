@@ -13,6 +13,10 @@ module.exports = {
       'ts-jest',
       {
         useESM: true,
+        isolatedModules: true,
+        tsconfig: {
+          skipLibCheck: true,
+        },
       },
     ],
   },

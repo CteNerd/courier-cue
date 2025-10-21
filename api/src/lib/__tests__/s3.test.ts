@@ -1,9 +1,14 @@
-import { describe, it, expect } from '@jest/globals';
+import { describe, it, expect, jest } from '@jest/globals';
 import {
   verifyS3KeyOwnership,
   getReceiptS3Key,
   getSignatureUploadUrl,
 } from '../s3';
+
+// Mock AWS SDK
+jest.mock('@aws-sdk/s3-request-presigner', () => ({
+  getSignedUrl: () => Promise.resolve('https://mock-signed-url.com'),
+}));
 
 describe('S3 Module', () => {
   describe('verifyS3KeyOwnership', () => {
