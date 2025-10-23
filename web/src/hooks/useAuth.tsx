@@ -216,7 +216,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!IS_LOCAL_DEV) {
       // Always use current window origin to support both S3 and CloudFront URLs
       const logoutRedirectUri = window.location.origin + '/login';
-      const logoutUrl = `${COGNITO_DOMAIN}/logout?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
+      const logoutUrl = `${COGNITO_DOMAIN}/logout?client_id=${CLIENT_ID}&logout_uri=${encodeURIComponent(
         logoutRedirectUri
       )}`;
       console.log('[AUTH DEBUG] Redirecting to Cognito logout:', {
