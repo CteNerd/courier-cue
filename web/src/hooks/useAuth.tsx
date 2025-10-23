@@ -208,7 +208,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     // Redirect appropriately based on environment
     if (!IS_LOCAL_DEV) {
-      const logoutUrl = `${COGNITO_DOMAIN}/logout?client_id=${CLIENT_ID}&logout_uri=${encodeURIComponent(
+      const logoutUrl = `${COGNITO_DOMAIN}/logout?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
         window.location.origin + '/login'
       )}`;
       console.log('[AUTH DEBUG] Redirecting to Cognito logout:', logoutUrl);
