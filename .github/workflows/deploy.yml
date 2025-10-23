@@ -30,13 +30,32 @@ jobs:
           path: api/dist/
           branch: main
 
-      - name: Download Web build artifacts
-        uses: dawidd6/action-download-artifact@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          workflow: ci.yml
-          name: web-dist
-          path: web/dist/
-          branch: main
+          node-version: '20'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+
+      - name: Install web dependencies
+        run: |
+          cd web
+          pnpm install
+
+      - name: Build web app with production environment
+        run: |
+          cd web
+          pnpm build
+        env:
+          VITE_USE_MOCK_API: false
+          VITE_LOCAL_DEV: false
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+          VITE_COGNITO_USER_POOL_ID: ${{ vars.VITE_COGNITO_USER_POOL_ID }}
+          VITE_COGNITO_CLIENT_ID: ${{ vars.VITE_COGNITO_CLIENT_ID }}
+          VITE_COGNITO_DOMAIN: ${{ vars.VITE_COGNITO_DOMAIN }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -79,23 +98,25 @@ jobs:
         run: |
           aws s3 sync web/dist/ s3://${{ steps.stack-outputs.outputs.WEB_BUCKET }} --delete
 
-      - name: Invalidate CloudFront cache (if exists)
+      - name: Get CloudFront distribution ID
+        id: cloudfront
         run: |
-          DISTRIBUTION_ID=$(aws cloudfront list-distributions \
-            --query "DistributionList.Items[?Origins.Items[0].DomainName=='${{ steps.stack-outputs.outputs.WEB_BUCKET }}.s3.amazonaws.com'].Id" \
+          DISTRIBUTION_ID=$(aws cloudformation describe-stacks \
+            --stack-name couriercue-dev \
+            --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontDistributionId`].OutputValue' \
             --output text 2>/dev/null || echo "")
-          if [ ! -z "$DISTRIBUTION_ID" ] && [ "$DISTRIBUTION_ID" != "None" ]; then
-            echo "Found CloudFront distribution: $DISTRIBUTION_ID"
-            if aws cloudfront get-distribution --id "$DISTRIBUTION_ID" >/dev/null 2>&1; then
-              aws cloudfront create-invalidation \
-                --distribution-id $DISTRIBUTION_ID \
-                --paths "/*"
-              echo "CloudFront cache invalidated successfully"
-            else
-              echo "Distribution $DISTRIBUTION_ID does not exist or is not accessible"
-            fi
+          echo "DISTRIBUTION_ID=$DISTRIBUTION_ID" >> $GITHUB_OUTPUT
+
+      - name: Invalidate CloudFront cache
+        run: |
+          if [ ! -z "${{ steps.cloudfront.outputs.DISTRIBUTION_ID }}" ] && [ "${{ steps.cloudfront.outputs.DISTRIBUTION_ID }}" != "None" ]; then
+            echo "Invalidating CloudFront distribution: ${{ steps.cloudfront.outputs.DISTRIBUTION_ID }}"
+            aws cloudfront create-invalidation \
+              --distribution-id ${{ steps.cloudfront.outputs.DISTRIBUTION_ID }} \
+              --paths "/*"
+            echo "CloudFront cache invalidated successfully"
           else
-            echo "No CloudFront distribution found for bucket ${{ steps.stack-outputs.outputs.WEB_BUCKET }}"
+            echo "No CloudFront distribution found"
           fi
 
   deploy-prod:
@@ -122,10 +143,18 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Build
-        run: |
-          pnpm --filter api build
-          pnpm --filter web build
+      - name: Build API
+        run: pnpm --filter api build
+
+      - name: Build Web with production environment
+        run: pnpm --filter web build
+        env:
+          VITE_USE_MOCK_API: false
+          VITE_LOCAL_DEV: false
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL_PROD }}
+          VITE_COGNITO_USER_POOL_ID: ${{ vars.VITE_COGNITO_USER_POOL_ID_PROD }}
+          VITE_COGNITO_CLIENT_ID: ${{ vars.VITE_COGNITO_CLIENT_ID_PROD }}
+          VITE_COGNITO_DOMAIN: ${{ vars.VITE_COGNITO_DOMAIN_PROD }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -168,21 +197,23 @@ jobs:
         run: |
           aws s3 sync web/dist/ s3://${{ steps.stack-outputs.outputs.WEB_BUCKET }} --delete
 
-      - name: Invalidate CloudFront cache (if exists)
+      - name: Get CloudFront distribution ID
+        id: cloudfront-prod
         run: |
-          DISTRIBUTION_ID=$(aws cloudfront list-distributions \
-            --query "DistributionList.Items[?Origins.Items[0].DomainName=='${{ steps.stack-outputs.outputs.WEB_BUCKET }}.s3.amazonaws.com'].Id" \
+          DISTRIBUTION_ID=$(aws cloudformation describe-stacks \
+            --stack-name couriercue-prod \
+            --query 'Stacks[0].Outputs[?OutputKey==`CloudFrontDistributionId`].OutputValue' \
             --output text 2>/dev/null || echo "")
-          if [ ! -z "$DISTRIBUTION_ID" ] && [ "$DISTRIBUTION_ID" != "None" ]; then
-            echo "Found CloudFront distribution: $DISTRIBUTION_ID"
-            if aws cloudfront get-distribution --id "$DISTRIBUTION_ID" >/dev/null 2>&1; then
-              aws cloudfront create-invalidation \
-                --distribution-id $DISTRIBUTION_ID \
-                --paths "/*"
-              echo "CloudFront cache invalidated successfully"
-            else
-              echo "Distribution $DISTRIBUTION_ID does not exist or is not accessible"
-            fi
+          echo "DISTRIBUTION_ID=$DISTRIBUTION_ID" >> $GITHUB_OUTPUT
+
+      - name: Invalidate CloudFront cache
+        run: |
+          if [ ! -z "${{ steps.cloudfront-prod.outputs.DISTRIBUTION_ID }}" ] && [ "${{ steps.cloudfront-prod.outputs.DISTRIBUTION_ID }}" != "None" ]; then
+            echo "Invalidating CloudFront distribution: ${{ steps.cloudfront-prod.outputs.DISTRIBUTION_ID }}"
+            aws cloudfront create-invalidation \
+              --distribution-id ${{ steps.cloudfront-prod.outputs.DISTRIBUTION_ID }} \
+              --paths "/*"
+            echo "CloudFront cache invalidated successfully"
           else
-            echo "No CloudFront distribution found for bucket ${{ steps.stack-outputs.outputs.WEB_BUCKET }}"
+            echo "No CloudFront distribution found"
           fi
