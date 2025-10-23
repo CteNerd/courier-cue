@@ -204,14 +204,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error('[AUTH DEBUG] Failed to clear tokens:', e);
     }
     
+    console.log('[AUTH DEBUG] Logout initiated, redirecting to login...');
+    
     // Redirect appropriately based on environment
     if (!IS_LOCAL_DEV) {
       const logoutUrl = `${COGNITO_DOMAIN}/logout?client_id=${CLIENT_ID}&logout_uri=${encodeURIComponent(
-        window.location.origin
+        window.location.origin + '/login'
       )}`;
+      console.log('[AUTH DEBUG] Redirecting to Cognito logout:', logoutUrl);
       window.location.href = logoutUrl;
     } else {
       // For local dev, just redirect to login
+      console.log('[AUTH DEBUG] Local dev logout, redirecting to /login');
       window.location.href = '/login';
     }
   };

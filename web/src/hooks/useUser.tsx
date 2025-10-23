@@ -157,10 +157,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
+    console.log('[USER DEBUG] Logout called');
     setCurrentUser(null);
     setAuthToken(null);
     localStorage.removeItem('currentUser');
     localStorage.removeItem('authToken');
+    console.log('[USER DEBUG] Redirecting to login...');
+    window.location.href = '/login';
   };
 
   return (
