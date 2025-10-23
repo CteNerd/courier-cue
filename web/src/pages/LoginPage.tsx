@@ -1,10 +1,9 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { DEMO_API_USERS } from '../lib/demoAuth';
 import { DarkModeToggle } from '../components/DarkModeToggle';
 
 export default function LoginPage() {
-  const { loginWithRedirect } = useAuth();
+  const { login } = useAuth();
   const [error, setError] = useState('');
 
   const handleCognitoLogin = () => {
@@ -17,7 +16,7 @@ export default function LoginPage() {
     });
     
     try {
-      loginWithRedirect();
+      login();
     } catch (err) {
       console.error('[LOGIN DEBUG] Redirect error:', err);
       setError('Failed to initiate login. Please try again.');
