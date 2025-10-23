@@ -13,13 +13,47 @@ export const handler = async (event: APIGatewayProxyEventV2): Promise<APIGateway
     verifyOrgAccess(authContext, orgId);
 
     const body = JSON.parse(event.body || '{}');
-    const updates = validateBody(updateOrgSettingsSchema, body);
+    const frontendSettings = validateBody(updateOrgSettingsSchema, body);
 
-    const updatedOrg = await updateItem(`ORG#${orgId}`, `ORG#${orgId}`, updates);
+    // Transform frontend format to DynamoDB format
+    const dbSettings = {
+      settings: {
+        company: {
+          name: frontendSettings.companyName,
+          address: frontendSettings.companyAddress,
+          phone: frontendSettings.companyPhone,
+          email: frontendSettings.companyEmail,
+          website: frontendSettings.website,
+        },
+        operations: {
+          operatingHours: frontendSettings.operatingHours,
+          deliveryRadius: frontendSettings.deliveryRadius,
+          defaultLoadSettings: {
+            autoAssign: frontendSettings.autoAssignLoads,
+            requireSignature: frontendSettings.requireSignature,
+            allowPartialDeliveries: frontendSettings.allowPartialDeliveries,
+            maxLoadsPerDriver: frontendSettings.maxLoadsPerDriver,
+          },
+          defaultHourlyRate: frontendSettings.defaultHourlyRate,
+          mileageRate: frontendSettings.mileageRate,
+          currency: frontendSettings.currency,
+          gpsTracking: frontendSettings.gpsTracking,
+          routeOptimization: frontendSettings.routeOptimization,
+        },
+        notifications: {
+          emailNotifications: frontendSettings.emailNotifications,
+          smsNotifications: frontendSettings.smsNotifications,
+        },
+        customFields: frontendSettings.customFields,
+      },
+      updatedAt: new Date().toISOString(),
+    };
+
+    const updatedOrg = await updateItem(`ORG#${orgId}`, `ORG#${orgId}`, dbSettings);
 
     logRequest(authContext, 'UPDATE_ORG_SETTINGS', {
       status: 'success',
-      updates: Object.keys(updates),
+      updates: Object.keys(frontendSettings),
     });
 
     return {
