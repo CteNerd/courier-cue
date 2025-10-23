@@ -1,14 +1,11 @@
 import { useState, useEffect, createContext, useContext, ReactNode } from 'react';
-import {
-  CognitoUserPool,
-  CognitoUserSession,
-} from 'amazon-cognito-identity-js';
 import { setAuthToken } from '../lib/api';
 
 const USER_POOL_ID = import.meta.env.VITE_COGNITO_USER_POOL_ID || '';
 const CLIENT_ID = import.meta.env.VITE_COGNITO_CLIENT_ID || '';
 const COGNITO_DOMAIN = import.meta.env.VITE_COGNITO_DOMAIN || '';
-const REDIRECT_URI = window.location.origin + '/callback';
+const REDIRECT_URI = typeof window !== 'undefined' ? window.location.origin + '/callback' : '';
+const IS_LOCAL_DEV = import.meta.env.VITE_LOCAL_DEV === 'true';
 
 // Debug logging for OAuth configuration
 console.log('[AUTH DEBUG] OAuth Configuration:', {
@@ -18,13 +15,22 @@ console.log('[AUTH DEBUG] OAuth Configuration:', {
   REDIRECT_URI,
   LOCAL_DEV: import.meta.env.VITE_LOCAL_DEV,
   USE_MOCK_API: import.meta.env.VITE_USE_MOCK_API,
-  ALL_ENV_VARS: import.meta.env,
+  IS_LOCAL_DEV,
 });
 
-const userPool = new CognitoUserPool({
-  UserPoolId: USER_POOL_ID,
-  ClientId: CLIENT_ID,
-});
+// Only import Cognito if not in local dev mode
+let CognitoUserPool: any;
+let userPool: any;
+
+if (!IS_LOCAL_DEV && typeof window !== 'undefined') {
+  import('amazon-cognito-identity-js').then((cognito) => {
+    CognitoUserPool = cognito.CognitoUserPool;
+    userPool = new CognitoUserPool({
+      UserPoolId: USER_POOL_ID,
+      ClientId: CLIENT_ID,
+    });
+  });
+}
 
 interface User {
   userId: string;
@@ -73,9 +79,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
-      const cognitoUser = userPool.getCurrentUser();
+      // Try to restore token from localStorage
+      try {
+        const storedToken = localStorage.getItem('access_token');
+        if (storedToken) {
+          console.log('[AUTH DEBUG] Restoring token from localStorage');
+          setAuthToken(storedToken);
+          
+          // Decode token to get user info
+          try {
+            const tokenPayload = JSON.parse(atob(storedToken.split('.')[1]));
+            console.log('[AUTH DEBUG] Restored token payload:', tokenPayload);
+            
+            // Check if token is expired
+            if (tokenPayload.exp && tokenPayload.exp * 1000 < Date.now()) {
+              console.log('[AUTH DEBUG] Token expired, clearing');
+              localStorage.removeItem('access_token');
+              localStorage.removeItem('refresh_token');
+              setUser(null);
+              setIsLoading(false);
+              return;
+            }
+            
+            setUser({
+              userId: tokenPayload.sub,
+              email: tokenPayload.email || tokenPayload.username,
+              orgId: tokenPayload['custom:orgId'] || '',
+              role: tokenPayload['cognito:groups']?.[0] || 'driver',
+              displayName: tokenPayload.name || tokenPayload.email,
+            });
+            setIsLoading(false);
+            return;
+          } catch (decodeError) {
+            console.error('[AUTH DEBUG] Failed to decode stored token:', decodeError);
+            localStorage.removeItem('access_token');
+          }
+        }
+      } catch (storageError) {
+        console.error('[AUTH DEBUG] localStorage access error:', storageError);
+      }
+
+      const cognitoUser = userPool?.getCurrentUser();
       if (cognitoUser) {
-        cognitoUser.getSession((err: Error | null, session: CognitoUserSession | null) => {
+        cognitoUser.getSession((err: Error | null, session: any | null) => {
           if (err || !session || !session.isValid()) {
             setUser(null);
             setIsLoading(false);
@@ -124,18 +170,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
-    const cognitoUser = userPool.getCurrentUser();
+    const cognitoUser = userPool?.getCurrentUser();
     if (cognitoUser) {
       cognitoUser.signOut();
     }
     setUser(null);
     setAuthToken(null);
     
-    // Redirect to Cognito logout
-    const logoutUrl = `${COGNITO_DOMAIN}/logout?client_id=${CLIENT_ID}&logout_uri=${encodeURIComponent(
-      window.location.origin
-    )}`;
-    window.location.href = logoutUrl;
+    // Clear stored tokens
+    try {
+      localStorage.removeItem('access_token');
+      localStorage.removeItem('refresh_token');
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('authToken');
+    } catch (e) {
+      console.error('[AUTH DEBUG] Failed to clear tokens:', e);
+    }
+    
+    // Redirect appropriately based on environment
+    if (!IS_LOCAL_DEV) {
+      const logoutUrl = `${COGNITO_DOMAIN}/logout?client_id=${CLIENT_ID}&logout_uri=${encodeURIComponent(
+        window.location.origin
+      )}`;
+      window.location.href = logoutUrl;
+    } else {
+      // For local dev, just redirect to login
+      window.location.href = '/login';
+    }
   };
 
   const handleCallback = async (code: string) => {
@@ -196,6 +257,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       // Store tokens and set auth
       if (tokens.id_token) {
         setAuthToken(tokens.access_token);
+        
+        // Persist tokens to localStorage
+        try {
+          localStorage.setItem('access_token', tokens.access_token);
+          if (tokens.refresh_token) {
+            localStorage.setItem('refresh_token', tokens.refresh_token);
+          }
+        } catch (storageError) {
+          console.error('[AUTH DEBUG] Failed to store tokens:', storageError);
+        }
         
         // Decode ID token to get user info
         const idTokenPayload = JSON.parse(atob(tokens.id_token.split('.')[1]));
