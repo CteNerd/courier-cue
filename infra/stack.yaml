@@ -275,18 +275,18 @@ Resources:
           - IsDev
           - 'http://localhost:5173/callback'
           - !Sub 'https://${WebBucket}.s3-website-${AWS::Region}.amazonaws.com/callback'
-        - !Sub 'https://d1ue66z8xhohab.cloudfront.net/callback'
+        - 'https://d3eqq07xigjfe6.cloudfront.net/callback'
       LogoutURLs:
         - !If
           - IsDev
           - 'http://localhost:5173/login'
           - !Sub 'https://${WebBucket}.s3-website-${AWS::Region}.amazonaws.com/login'
-        - !Sub 'https://d1ue66z8xhohab.cloudfront.net/login'
+        - 'https://d3eqq07xigjfe6.cloudfront.net/login'
         - !If
           - IsDev
           - 'http://localhost:5173/'
           - !Sub 'https://${WebBucket}.s3-website-${AWS::Region}.amazonaws.com/'
-        - !Sub 'https://d1ue66z8xhohab.cloudfront.net/'
+        - 'https://d3eqq07xigjfe6.cloudfront.net/'
       SupportedIdentityProviders:
         - COGNITO
 
