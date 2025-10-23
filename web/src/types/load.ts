@@ -18,16 +18,16 @@ export interface ServiceAddress {
 
 export interface CreateLoadFormData {
   serviceAddress: ServiceAddress;
-  assignedDriverId: string;
+  assignedDriverId?: string;
   items: LoadItem[];
-  notes: string;
+  notes?: string;
   priority: 'low' | 'normal' | 'high';
 }
 
 export interface CreateLoadFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (loadData: any) => void;
+  onSubmit: (loadData: CreateLoadFormData) => void;
 }
 
 export const UNIT_OPTIONS = [

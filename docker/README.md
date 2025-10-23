@@ -104,10 +104,14 @@ The seed script creates:
 - Email: noreply@demo.com
 
 **Users**:
-- Admin: admin@demo.com (admin-123)
-- Driver: driver@demo.com (driver-456)
+- Admin: admin@demo.com (admin-123) - Full system access
+- Co-Admin: coadmin@demo.com (coadmin-456) - Operational access, can view users but not manage them
+- Driver 1: driver1@demo.com (driver1-789) - Active driver (Driver Johnson)
+- Driver 2: driver2@demo.com (driver2-101) - Active driver (Driver Smith)
 
-**Load**: Sample assigned load for driver
+**Loads**: Sample loads with various statuses assigned to drivers
+
+**Note**: The demo data includes users with different roles and statuses to test the complete user management workflow, including co-admin permission restrictions.
 
 ## Environment Variables
 

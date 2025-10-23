@@ -1,14 +1,16 @@
 import { PRIORITY_OPTIONS } from '../../types/load';
 
 interface Driver {
-  userId: string;
+  id: string;
   displayName: string;
+  email: string;
+  role: string;
 }
 
 interface LoadAssignmentProps {
-  assignedDriverId: string;
+  assignedDriverId?: string;
   priority: 'low' | 'normal' | 'high';
-  notes: string;
+  notes?: string;
   drivers: Driver[];
   onDriverChange: (driverId: string) => void;
   onPriorityChange: (priority: 'low' | 'normal' | 'high') => void;
@@ -37,11 +39,16 @@ export default function LoadAssignment({
           >
             <option value="">Unassigned (Pending)</option>
             {drivers.map(driver => (
-              <option key={driver.userId} value={driver.userId}>
-                {driver.displayName}
+              <option key={driver.id} value={driver.id}>
+                {driver.displayName} ({driver.email})
               </option>
             ))}
           </select>
+          {drivers.length === 0 && (
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+              No drivers available. Create driver accounts in the Users page.
+            </p>
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">Priority</label>

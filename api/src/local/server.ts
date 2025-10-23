@@ -15,13 +15,72 @@ app.use(express.json());
 
 // Mock JWT middleware for local development
 app.use((req: any, _res: any, next: any) => {
-  // Mock authentication for local development
-  req.user = {
-    userId: 'admin-123',
-    orgId: 'demo-org',
-    email: 'admin@demo.com',
-    role: 'admin'
-  };
+  // For local development, extract user info from a simple header or use default admin
+  const userHeader = req.headers['x-demo-user'];
+  
+  if (userHeader) {
+    // Parse demo user from header
+    try {
+      const userData = JSON.parse(userHeader);
+      req.user = {
+        userId: userData.userId,
+        orgId: userData.orgId,
+        email: userData.email,
+        role: userData.role
+      };
+    } catch (error) {
+      // Fallback to admin if parsing fails
+      req.user = {
+        userId: 'admin-123',
+        orgId: 'demo-org',
+        email: 'admin@demo.com',
+        role: 'admin'
+      };
+    }
+  } else {
+    // Try to parse JWT token from Authorization header
+    const authHeader = req.headers.authorization;
+    
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+      try {
+        const token = authHeader.substring(7);
+        const parts = token.split('.');
+        
+        if (parts.length >= 2) {
+          // Decode the payload (middle part of JWT)
+          const payload = JSON.parse(atob(parts[1]));
+          
+          req.user = {
+            userId: payload.sub,
+            orgId: payload['custom:orgId'] || 'demo-org',
+            email: payload.email,
+            role: payload['custom:role']
+          };
+        } else {
+          throw new Error('Invalid token format');
+        }
+      } catch (error) {
+        console.log('JWT parsing error:', error instanceof Error ? error.message : 'Unknown error');
+        // Fallback to admin if JWT parsing fails
+        req.user = {
+          userId: 'admin-123',
+          orgId: 'demo-org',
+          email: 'admin@demo.com',
+          role: 'admin'
+        };
+      }
+    } else {
+      // No token provided, use admin as default
+      req.user = {
+        userId: 'admin-123',
+        orgId: 'demo-org',
+        email: 'admin@demo.com',
+        role: 'admin'
+      };
+    }
+  }
+  
+  console.log('Authenticated user:', req.user);
   next();
 });
 
@@ -101,7 +160,13 @@ for (const route of routes) {
         requestContext: {
           authorizer: {
             jwt: {
-              claims: req.user
+              claims: {
+                sub: req.user.userId,
+                email: req.user.email,
+                'custom:orgId': req.user.orgId,
+                'custom:role': req.user.role,
+                'cognito:groups': req.user.role
+              }
             }
           }
         }

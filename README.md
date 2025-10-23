@@ -5,10 +5,11 @@ Multi-tenant SaaS platform for digitizing delivery slips and driver workflow man
 ## ✨ Features
 
 ### 🏢 **Multi-Tenant Organization Management**
-- **Role-based access control** (Admin, Co-Admin, Driver)
+- **Role-based access control** (Admin, Co-Admin, Driver) with granular permissions
 - **Organization settings** with configurable preferences
-- **User management** with invite/permission system
+- **User management** with invite/permission system and role-specific limitations
 - **Custom fields** for load-specific data collection
+- **Co-Admin permissions**: Can view all users and manage drivers, but cannot invite users or manage other admins
 
 ### 📦 **Load Management**
 - **Load creation and assignment** to drivers
@@ -109,15 +110,26 @@ pnpm dev:web
 The application includes a comprehensive demo environment with pre-configured users:
 
 - **Admin User**: `admin@demo.com` / `admin123`
-  - Full system access and user management
+  - Full system access, user management, and user invitations
 - **Co-Admin User**: `coadmin@demo.com` / `coadmin123`  
-  - Load management and driver oversight
+  - Load management, can view all users and manage drivers (but cannot invite users or manage other admins)
 - **Driver Users**: 
-  - `driver1@demo.com` / `driver123`
-  - `driver2@demo.com` / `driver123`
-  - `driver3@demo.com` / `driver123`
+  - `driver1@demo.com` / `driver123` (Driver Johnson)
+  - `driver2@demo.com` / `driver123` (Driver Smith)
+  - `driver3@demo.com` / `driver123` (Driver Brown)
+  - `driver4@demo.com` / `driver123` (Driver Wilson)
 
-Each role demonstrates different permission levels and UI experiences.
+Each role demonstrates different permission levels and UI experiences. The demo includes users with various statuses (active, inactive, pending) for testing user management features.
+
+### Development Features
+
+- **Mock API Mode**: Toggle between real API and mock data via `VITE_USE_MOCK_API`
+- **API Status Indicator**: Visual indicator in navigation showing current API mode
+- **Comprehensive Demo Data**: 6+ demo users with various roles and statuses
+- **Role-Based UI**: Different interfaces for admin, co-admin, and driver roles
+- **Permission Testing**: Co-admin restrictions properly enforced in UI
+- **Error Handling**: Defensive programming prevents crashes from undefined data
+- **Theme Persistence**: Dark/light mode settings saved across sessions
 
 ## Project Structure
 
@@ -246,11 +258,22 @@ EMAIL_FROM=noreply@couriercue.app
 ### Web (.env)
 
 ```bash
-VITE_API_BASE_URL=https://api.couriercue.app
+# API Configuration
+VITE_API_BASE_URL=http://localhost:3001
+VITE_USE_MOCK_API=false  # Set to true for mock API with demo data
+
+# Cognito Configuration
 VITE_COGNITO_USER_POOL_ID=us-east-1_xxxxxxxxx
 VITE_COGNITO_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
 VITE_COGNITO_DOMAIN=https://couriercue-dev-xxxxx.auth.us-east-1.amazoncognito.com
+
+# Local development flag
+VITE_LOCAL_DEV=true
 ```
+
+**Development Modes:**
+- `VITE_USE_MOCK_API=true`: Uses mock API with comprehensive demo data
+- `VITE_USE_MOCK_API=false`: Connects to real API server (requires backend running)
 
 ## API Endpoints
 
@@ -300,6 +323,7 @@ See [api/README.md](api/README.md) for complete API documentation.
 
 - [Infrastructure](infra/README.md) - CloudFormation setup
 - [API](api/README.md) - Backend Lambda functions
+- [Authentication](AUTHENTICATION.md) - Local and production auth setup
 - [Web](web/README.md) - Frontend React app (to be created)
 - [Docker](docker/README.md) - Local development (to be created)
 
@@ -316,8 +340,12 @@ See [api/README.md](api/README.md) for complete API documentation.
 - [x] Multi-tenant organization management
 - [x] Load management with status tracking
 - [x] User management and role-based access
+- [x] Co-admin permission system with granular access controls
+- [x] Mock API integration for development/demo
+- [x] Comprehensive demo data with multiple user types and statuses
 - [x] Dark/light theme toggle
 - [x] Comprehensive testing setup
+- [x] API status indicator in navigation
 - [ ] Signature capture component
 - [ ] PDF receipt generation
 - [ ] Email templates and delivery
@@ -352,6 +380,16 @@ See [api/README.md](api/README.md) for complete API documentation.
 - This project uses pnpm workspaces
 - Avoid mixing npm and pnpm commands
 - If needed, remove `node_modules` and reinstall with pnpm
+
+**6. Users page loading blank**
+- Ensure `VITE_USE_MOCK_API=true` in web/.env for demo mode
+- Check console for errors (press F12)
+- Try refreshing the page or switching API modes
+
+**7. Co-admin user cannot access features**
+- Co-admins can view users but cannot invite new users
+- This is intentional - only admins can invite users
+- Co-admins can modify drivers but not other admins or co-admins
 
 ## Contributing
 

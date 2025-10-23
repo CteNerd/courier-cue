@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { useUser, DEMO_USERS_WITH_PASSWORDS } from '../hooks/useUser';
+import { useUser } from '../hooks/useUser';
+import { DEMO_API_USERS } from '../lib/demoAuth';
 import { DarkModeToggle } from '../components/DarkModeToggle';
 
 export default function LoginPage() {
@@ -122,7 +123,7 @@ export default function LoginPage() {
             </div>
 
             <div className="mt-6 grid grid-cols-1 gap-3">
-              {DEMO_USERS_WITH_PASSWORDS.map((user) => (
+              {DEMO_API_USERS.map((user) => (
                 <button
                   key={user.userId}
                   type="button"

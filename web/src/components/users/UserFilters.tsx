@@ -15,7 +15,7 @@ export default function UserFilters({ selectedRole, setSelectedRole, userCounts 
   const filters = [
     { id: 'all' as RoleFilter, name: 'All Users', count: userCounts.total },
     { id: 'admin' as RoleFilter, name: 'Admins', count: userCounts.admin },
-    { id: 'co-admin' as RoleFilter, name: 'Co-Admins', count: userCounts.coAdmin },
+    { id: 'coadmin' as RoleFilter, name: 'Co-Admins', count: userCounts.coAdmin },
     { id: 'driver' as RoleFilter, name: 'Drivers', count: userCounts.driver },
   ];
 

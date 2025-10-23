@@ -1,19 +1,48 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { OrganizationSettings } from '../types/settings';
 import { DEFAULT_SETTINGS } from '../data/defaultSettings';
+import { orgApi } from '../lib/api';
 
 export const useSettings = () => {
-  const [settings, setSettings] = useState<OrganizationSettings>(() => {
-    // Load settings from localStorage
-    const saved = localStorage.getItem('organizationSettings');
-    return saved ? JSON.parse(saved) : DEFAULT_SETTINGS;
-  });
+  const [settings, setSettings] = useState<OrganizationSettings>(DEFAULT_SETTINGS);
   const [hasChanges, setHasChanges] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const saveSettings = () => {
-    localStorage.setItem('organizationSettings', JSON.stringify(settings));
-    setHasChanges(false);
-    console.log('Settings saved:', settings);
+  useEffect(() => {
+    loadSettings();
+  }, []);
+
+  const loadSettings = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await orgApi.getSettings() as { settings: OrganizationSettings };
+      setSettings(response.settings || DEFAULT_SETTINGS);
+    } catch (err) {
+      console.error('Failed to load settings:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load settings');
+      // Fallback to default settings
+      setSettings(DEFAULT_SETTINGS);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const saveSettings = async () => {
+    try {
+      setSaving(true);
+      setError(null);
+      await orgApi.updateSettings(settings);
+      setHasChanges(false);
+    } catch (err) {
+      console.error('Failed to save settings:', err);
+      setError(err instanceof Error ? err.message : 'Failed to save settings');
+      throw err;
+    } finally {
+      setSaving(false);
+    }
   };
 
   const updateSettings = (newSettings: Partial<OrganizationSettings>) => {
@@ -47,6 +76,10 @@ export const useSettings = () => {
     setHasChanges,
     saveSettings,
     updateSettings,
-    updateNestedSettings
+    updateNestedSettings,
+    loading,
+    saving,
+    error,
+    refreshSettings: loadSettings
   };
 };

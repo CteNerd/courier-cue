@@ -8,6 +8,7 @@ export interface Load {
     zip: string;
     contact: string;
     phone: string;
+    email?: string;
   };
   status: 'PENDING' | 'ASSIGNED' | 'EN_ROUTE' | 'DELIVERED' | 'COMPLETED';
   assignedDriverId?: string;
@@ -17,8 +18,14 @@ export interface Load {
     qty: number;
   }>;
   createdAt: string;
+  updatedAt?: string;
   deliveredAt?: string;
   signatureUrl?: string;
+  signatureKey?: string;
+  receiptPdfKey?: string;
+  notes?: string;
+  unloadLocation?: string;
+  shipVia?: string;
 }
 
 export const MOCK_LOADS: Load[] = [

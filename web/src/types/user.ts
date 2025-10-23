@@ -1,14 +1,14 @@
 export interface User {
-  userId: string;
+  id: string;
   email: string;
   displayName: string;
-  role: 'admin' | 'co-admin' | 'driver';
+  role: 'admin' | 'coadmin' | 'driver';
   orgId: string;
   status: 'active' | 'inactive' | 'pending';
-  lastLogin?: string;
+  lastLoginAt?: string;
   createdAt: string;
 }
 
-export type UserRole = 'admin' | 'co-admin' | 'driver';
+export type UserRole = 'admin' | 'coadmin' | 'driver';
 export type UserStatus = 'active' | 'inactive' | 'pending';
 export type RoleFilter = 'all' | UserRole;

@@ -86,6 +86,9 @@ export function verifyOrgAccess(authContext: AuthContext, orgId: string): void {
  * Check if user has required role
  */
 export function requireRole(authContext: AuthContext, allowedRoles: string[]): void {
+  // log authContext for debugging
+  console.log('Auth context:', authContext);
+
   const hasRole =
     allowedRoles.includes(authContext.role) ||
     authContext.groups.some((group) => allowedRoles.includes(group));

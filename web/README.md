@@ -28,11 +28,22 @@ pnpm install
 Create a `.env` file:
 
 ```bash
+# API Configuration
 VITE_API_BASE_URL=http://localhost:3001
+VITE_USE_MOCK_API=false  # Set to true for demo mode with mock data
+
+# Cognito Configuration (for production)
 VITE_COGNITO_USER_POOL_ID=us-east-1_xxxxxxxxx
 VITE_COGNITO_CLIENT_ID=xxxxxxxxxxxxxxxxxxxxxxxxxx
 VITE_COGNITO_DOMAIN=https://couriercue-dev-xxxxx.auth.us-east-1.amazoncognito.com
+
+# Local development flag
+VITE_LOCAL_DEV=true
 ```
+
+**Development Modes:**
+- **Mock API Mode** (`VITE_USE_MOCK_API=true`): Uses mock data for development/demo
+- **Real API Mode** (`VITE_USE_MOCK_API=false`): Connects to backend API server
 
 **Note**: The API runs on port 3001 in local development.
 
@@ -47,6 +58,22 @@ cd web && pnpm dev
 ```
 
 Opens at http://localhost:5173
+
+### Demo Users
+
+When using mock API mode (`VITE_USE_MOCK_API=true`), the following demo users are available:
+
+- **Admin**: `admin@demo.com` / `admin123`
+  - Full access to all features, user management, and invitations
+- **Co-Admin**: `coadmin@demo.com` / `coadmin123`
+  - Can view all users and manage drivers, but cannot invite users or manage admins
+- **Drivers**: 
+  - `driver1@demo.com` / `driver123` (Driver Johnson)
+  - `driver2@demo.com` / `driver123` (Driver Smith)
+  - `driver3@demo.com` / `driver123` (Driver Brown - inactive)
+  - `driver4@demo.com` / `driver123` (Driver Wilson - pending)
+
+Each role demonstrates different UI experiences and permission levels.
 
 ### Build for Production
 
@@ -141,12 +168,17 @@ web/
 
 - ✅ Authentication & JWT token management
 - ✅ Role-based routing and access control
-- ✅ Dark/light theme with persistence
-- ✅ Responsive design
-- ✅ Load management (CRUD operations)
-- ✅ User management and invitations
-- ✅ Organization settings
-- ✅ Driver workflow pages
+- ✅ Co-admin permission system with granular user management
+- ✅ Mock API integration for development and demo
+- ✅ Comprehensive demo users with various roles and statuses
+- ✅ Dark/light theme with persistence and system preference detection
+- ✅ Responsive design with mobile-first approach
+- ✅ Load management (CRUD operations) with status tracking
+- ✅ User management and invitations with role restrictions
+- ✅ Organization settings with tabbed interface
+- ✅ Driver workflow pages with assigned load views
+- ✅ API status indicator in navigation
+- ✅ Error handling with defensive programming
 - ⏳ Signature capture (planned)
 - ⏳ PDF receipt generation (planned)
 
@@ -182,10 +214,12 @@ function Component() {
 
 ## State Management
 
-- **React Query** for server state (data fetching, caching)
-- **React Hook Form** for form state
-- **Context API** for auth state
-- Local state with `useState` for UI state
+- **React Query** for server state (data fetching, caching) - planned
+- **React Hook Form** for form state - planned
+- **Context API** for auth state and user management
+- **Mock API** integration for development with localStorage persistence
+- **Theme Context** for dark/light mode with localStorage persistence
+- Local state with `useState` for UI state and loading states
 
 ## Code Style
 
