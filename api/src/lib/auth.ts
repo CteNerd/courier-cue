@@ -79,8 +79,9 @@ export function getAuthContext(event: APIGatewayProxyEventV2): AuthContext {
   return {
     userId: claims.sub as string,
     email: claims.email as string,
-    orgId: (claims['custom:orgId'] as string) || '',
-    role: (claims['custom:role'] as string) || 'driver',
+    // ID token has custom: prefix, access token doesn't
+    orgId: (claims['custom:orgId'] as string) || (claims.orgId as string) || '',
+    role: (claims['custom:role'] as string) || (claims.role as string) || 'driver',
     groups,
   };
 }

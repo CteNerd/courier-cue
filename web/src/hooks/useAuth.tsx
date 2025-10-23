@@ -289,11 +289,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // Store tokens and set auth
       if (tokens.id_token) {
-        setAuthToken(tokens.access_token);
+        // Use ID token for API calls as it contains custom attributes
+        setAuthToken(tokens.id_token);
         
         // Persist tokens to localStorage
         try {
           localStorage.setItem('access_token', tokens.access_token);
+          localStorage.setItem('id_token', tokens.id_token);
           if (tokens.refresh_token) {
             localStorage.setItem('refresh_token', tokens.refresh_token);
           }
