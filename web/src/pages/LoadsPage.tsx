@@ -22,8 +22,9 @@ interface Load {
     email?: string;
   };
   items: Array<{
-    type: string;
-    qty: number;
+    description: string;
+    quantity: number;
+    weight?: string;
   }>;
   notes?: string;
   unloadLocation?: string;
@@ -178,7 +179,7 @@ export default function LoadsPage() {
       load.serviceAddress.contact,
       load.serviceAddress.phone,
       load.assignedDriverName || '',
-      load.items.reduce((sum, item) => sum + item.qty, 0),
+      load.items.reduce((sum, item) => sum + item.quantity, 0),
       load.shipVia || '',
       load.notes || ''
     ]);
@@ -442,10 +443,10 @@ export default function LoadsPage() {
                                 {load.assignedDriverId && (
                                   <p>👤 {getDriverName(load.assignedDriverId)}</p>
                                 )}
-                                <p>📦 {load.items.reduce((sum, item) => sum + item.qty, 0)} items</p>
+                                <p>📦 {load.items.reduce((sum, item) => sum + item.quantity, 0)} items</p>
                                 {load.shipVia && <p>🚚 {load.shipVia}</p>}
                               </div>
-                              <div className="flex space-x-2">
+                              <div className="flex space-x-2 ml-8">
                                 {load.status === 'PENDING' && (
                                   <button 
                                     onClick={() => openAssignModal(load)}

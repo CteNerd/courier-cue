@@ -106,11 +106,16 @@ export function verifyOrgAccess(authContext: AuthContext, orgId: string): void {
  */
 export function requireRole(authContext: AuthContext, allowedRoles: string[]): void {
   // log authContext for debugging
-  console.log('Auth context:', authContext);
+  console.log('Auth context:', JSON.stringify(authContext, null, 2));
+  console.log('Allowed roles:', allowedRoles);
+  console.log('authContext.role:', authContext.role);
+  console.log('authContext.groups:', authContext.groups);
 
   const hasRole =
     allowedRoles.includes(authContext.role) ||
     authContext.groups.some((group) => allowedRoles.includes(group));
+
+  console.log('hasRole:', hasRole);
 
   if (!hasRole) {
     throw new AuthError(
