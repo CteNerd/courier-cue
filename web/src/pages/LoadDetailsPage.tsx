@@ -4,33 +4,7 @@ import { useUser } from '../hooks/useUser';
 import { loadsApi } from '../lib/api';
 import { Navigation } from '../components/Navigation';
 import SignatureCanvas from '../components/SignatureCanvas';
-
-interface Load {
-  loadId: string;
-  status: 'PENDING' | 'ASSIGNED' | 'EN_ROUTE' | 'DELIVERED' | 'COMPLETED';
-  createdAt: string;
-  updatedAt: string;
-  assignedDriverId?: string;
-  serviceAddress: {
-    name: string;
-    street: string;
-    city: string;
-    state: string;
-    zip: string;
-    contact: string;
-    phone: string;
-    email?: string;
-  };
-  items: Array<{
-    type: string;
-    qty: number;
-  }>;
-  notes?: string;
-  unloadLocation?: string;
-  shipVia?: string;
-  signatureKey?: string;
-  receiptPdfKey?: string;
-}
+import { Load } from '../data/mockData';
 
 export default function LoadDetailsPage() {
   const { id } = useParams();
@@ -75,7 +49,7 @@ export default function LoadDetailsPage() {
     setError(null);
 
     try {
-      await loadsApi.updateStatus(load.loadId, action);
+      await loadsApi.updateStatus(load.id, action);
       await loadLoadDetails(); // Refresh load data
       
       // If delivered, show signature capture
@@ -223,7 +197,7 @@ export default function LoadDetailsPage() {
                 Load Details
               </h2>
               <div className="flex items-center mt-2 space-x-3">
-                <p className="text-lg text-gray-600 dark:text-gray-400">ID: {load.loadId}</p>
+                <p className="text-lg text-gray-600 dark:text-gray-400">ID: {load.id}</p>
                 <span className={`px-3 py-1 text-sm font-medium rounded-full ${getStatusColor(load.status)}`}>
                   {load.status.replace('_', ' ')}
                 </span>
@@ -306,7 +280,7 @@ export default function LoadDetailsPage() {
                     <h5 className="font-medium text-gray-900 dark:text-white">Load Information</h5>
                     <div className="space-y-2 text-gray-600 dark:text-gray-400">
                       <p>Created: {new Date(load.createdAt).toLocaleString()}</p>
-                      <p>Updated: {new Date(load.updatedAt).toLocaleString()}</p>
+                      <p>Updated: {new Date(load.updatedAt || load.createdAt).toLocaleString()}</p>
                       {load.shipVia && <p>Ship Via: {load.shipVia}</p>}
                       {load.unloadLocation && <p>Unload Location: {load.unloadLocation}</p>}
                     </div>
@@ -355,7 +329,7 @@ export default function LoadDetailsPage() {
                   <h5 className="font-medium text-gray-900 dark:text-white mb-3">Receipt</h5>
                   <div className="flex space-x-3">
                     <a
-                      href={loadsApi.getReceipt(load.loadId)}
+                      href={loadsApi.getReceipt(load.id)}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg"
@@ -365,7 +339,7 @@ export default function LoadDetailsPage() {
                     <button
                       onClick={async () => {
                         try {
-                          await loadsApi.sendEmail(load.loadId);
+                          await loadsApi.sendEmail(load.id);
                           alert('Receipt email sent successfully');
                         } catch (err) {
                           alert('Failed to send email: ' + (err instanceof Error ? err.message : 'Unknown error'));
@@ -386,7 +360,7 @@ export default function LoadDetailsPage() {
       {/* Signature Canvas Modal */}
       {showSignature && (
         <SignatureCanvas
-          loadId={load.loadId}
+          loadId={load.id}
           shipperName={load.serviceAddress.contact}
           onSignatureComplete={handleSignatureComplete}
           onClose={() => setShowSignature(false)}
