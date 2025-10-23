@@ -22,6 +22,11 @@ Parameters:
     Type: String
     Default: ''
     Description: Optional custom domain name for the web app (requires ACM certificate)
+  
+  WebDomainCertificateArn:
+    Type: String
+    Default: ''
+    Description: ACM certificate ARN for the custom domain (must be in us-east-1 for CloudFront)
 
 Resources:
   # S3 Buckets
@@ -29,11 +34,16 @@ Resources:
     Type: AWS::S3::Bucket
     Properties:
       BucketName: !Sub 'couriercue-${Env}-web'
-      PublicAccessBlockConfiguration:
-        BlockPublicAcls: false
-        BlockPublicPolicy: false
-        IgnorePublicAcls: false
-        RestrictPublicBuckets: false
+      PublicAccessBlockConfiguration: !If
+        - EnableCloudFrontCondition
+        - BlockPublicAcls: true
+          BlockPublicPolicy: true
+          IgnorePublicAcls: true
+          RestrictPublicBuckets: true
+        - BlockPublicAcls: false
+          BlockPublicPolicy: false
+          IgnorePublicAcls: false
+          RestrictPublicBuckets: false
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: index.html
@@ -51,11 +61,20 @@ Resources:
     Properties:
       Bucket: !Ref WebBucket
       PolicyDocument:
-        Statement:
-          - Effect: Allow
-            Principal: '*'
-            Action: 's3:GetObject'
-            Resource: !Sub '${WebBucket.Arn}/*'
+        Statement: !If
+          - EnableCloudFrontCondition
+          - - Effect: Allow
+              Principal:
+                Service: cloudfront.amazonaws.com
+              Action: 's3:GetObject'
+              Resource: !Sub '${WebBucket.Arn}/*'
+              Condition:
+                StringEquals:
+                  'AWS:SourceArn': !Sub 'arn:aws:cloudfront::${AWS::AccountId}:distribution/${CloudFrontDistribution}'
+          - - Effect: Allow
+              Principal: '*'
+              Action: 's3:GetObject'
+              Resource: !Sub '${WebBucket.Arn}/*'
 
   AssetsBucket:
     Type: AWS::S3::Bucket
@@ -149,6 +168,59 @@ Resources:
               KeyType: RANGE
           Projection:
             ProjectionType: ALL
+
+  # CloudFront Distribution (conditional)
+  CloudFrontOriginAccessControl:
+    Type: AWS::CloudFront::OriginAccessControl
+    Condition: EnableCloudFrontCondition
+    Properties:
+      OriginAccessControlConfig:
+        Name: !Sub 'couriercue-${Env}-oac'
+        OriginAccessControlOriginType: s3
+        SigningBehavior: always
+        SigningProtocol: sigv4
+
+  CloudFrontDistribution:
+    Type: AWS::CloudFront::Distribution
+    Condition: EnableCloudFrontCondition
+    Properties:
+      DistributionConfig:
+        Aliases: !If
+          - HasCustomDomain
+          - [!Ref WebDomainName]
+          - !Ref AWS::NoValue
+        Comment: !Sub 'CourierCue ${Env} Distribution'
+        DefaultCacheBehavior:
+          TargetOriginId: !Sub 'S3-${WebBucket}'
+          ViewerProtocolPolicy: redirect-to-https
+          CachePolicyId: 658327ea-f89d-4fab-a63d-7e88639e58f6  # Managed-CachingOptimized
+          OriginRequestPolicyId: 88a5eaf4-2fd4-4709-b370-b4c650ea3fcf  # Managed-CORS-S3Origin
+          ResponseHeadersPolicyId: 5cc3b908-e619-4b99-88e5-2cf7f45965bd  # Managed-SimpleCORS
+          Compress: true
+        DefaultRootObject: index.html
+        Enabled: true
+        HttpVersion: http2
+        IPV6Enabled: true
+        Origins:
+          - Id: !Sub 'S3-${WebBucket}'
+            DomainName: !GetAtt WebBucket.RegionalDomainName
+            S3OriginConfig:
+              OriginAccessIdentity: ''
+            OriginAccessControlId: !Ref CloudFrontOriginAccessControl
+        PriceClass: PriceClass_100
+        ViewerCertificate: !If
+          - HasCustomDomain
+          - AcmCertificateArn: !Ref WebDomainCertificateArn
+            SslSupportMethod: sni-only
+            MinimumProtocolVersion: TLSv1.2_2021
+          - CloudFrontDefaultCertificate: true
+        CustomErrorResponses:
+          - ErrorCode: 403
+            ResponseCode: 200
+            ResponsePagePath: /index.html
+          - ErrorCode: 404
+            ResponseCode: 200
+            ResponsePagePath: /index.html
 
   # Cognito User Pool
   UserPool:
@@ -367,6 +439,8 @@ Resources:
 Conditions:
   IsProd: !Equals [!Ref Env, 'prod']
   IsDev: !Equals [!Ref Env, 'dev']
+  EnableCloudFrontCondition: !Equals [!Ref EnableCloudFront, 'true']
+  HasCustomDomain: !Not [!Equals [!Ref WebDomainName, '']]
 
 Outputs:
   ApiBaseUrl:
@@ -422,3 +496,17 @@ Outputs:
     Value: !Sub 'https://${UserPoolDomain}.auth.${AWS::Region}.amazoncognito.com'
     Export:
       Name: !Sub '${AWS::StackName}-CognitoDomain'
+
+  CloudFrontDistributionId:
+    Condition: EnableCloudFrontCondition
+    Description: CloudFront Distribution ID
+    Value: !Ref CloudFrontDistribution
+    Export:
+      Name: !Sub '${AWS::StackName}-CloudFrontDistributionId'
+
+  CloudFrontDomainName:
+    Condition: EnableCloudFrontCondition
+    Description: CloudFront Distribution Domain Name (HTTPS URL)
+    Value: !Sub 'https://${CloudFrontDistribution.DomainName}'
+    Export:
+      Name: !Sub '${AWS::StackName}-CloudFrontDomainName'

@@ -49,7 +49,7 @@ jobs:
           aws cloudformation deploy \
             --template-file infra/stack.yaml \
             --stack-name couriercue-dev \
-            --parameter-overrides Env=dev \
+            --parameter-overrides Env=dev EnableCloudFront=true \
             --capabilities CAPABILITY_NAMED_IAM \
             --no-fail-on-empty-changeset
 
@@ -125,7 +125,7 @@ jobs:
           aws cloudformation deploy \
             --template-file infra/stack.yaml \
             --stack-name couriercue-prod \
-            --parameter-overrides Env=prod \
+            --parameter-overrides Env=prod EnableCloudFront=true \
             --capabilities CAPABILITY_NAMED_IAM \
             --no-fail-on-empty-changeset
 
