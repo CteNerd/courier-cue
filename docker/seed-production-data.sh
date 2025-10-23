@@ -13,6 +13,61 @@ DRIVER4_ID="driver-emily-rodriguez"
 
 echo "Seeding production data to $TABLE_NAME..."
 
+# Create Organization Settings
+echo "Creating organization settings..."
+aws dynamodb put-item \
+  --table-name $TABLE_NAME \
+  --item '{
+    "PK": {"S": "ORG#'$ORG_ID'"},
+    "SK": {"S": "ORG#'$ORG_ID'"},
+    "orgId": {"S": "'$ORG_ID'"},
+    "settings": {"M": {
+      "company": {"M": {
+        "name": {"S": "Courier Test Org"},
+        "email": {"S": "info@couriertest.com"},
+        "phone": {"S": "(555) 123-4567"},
+        "website": {"S": "https://couriertest.com"},
+        "address": {"M": {
+          "street": {"S": "1234 Business Ave"},
+          "city": {"S": "Houston"},
+          "state": {"S": "TX"},
+          "zip": {"S": "77001"},
+          "country": {"S": "USA"}
+        }}
+      }},
+      "operations": {"M": {
+        "operatingHours": {"M": {
+          "monday": {"M": {"start": {"S": "08:00"}, "end": {"S": "17:00"}, "enabled": {"BOOL": true}}},
+          "tuesday": {"M": {"start": {"S": "08:00"}, "end": {"S": "17:00"}, "enabled": {"BOOL": true}}},
+          "wednesday": {"M": {"start": {"S": "08:00"}, "end": {"S": "17:00"}, "enabled": {"BOOL": true}}},
+          "thursday": {"M": {"start": {"S": "08:00"}, "end": {"S": "17:00"}, "enabled": {"BOOL": true}}},
+          "friday": {"M": {"start": {"S": "08:00"}, "end": {"S": "17:00"}, "enabled": {"BOOL": true}}},
+          "saturday": {"M": {"start": {"S": "09:00"}, "end": {"S": "13:00"}, "enabled": {"BOOL": false}}},
+          "sunday": {"M": {"start": {"S": "09:00"}, "end": {"S": "13:00"}, "enabled": {"BOOL": false}}}
+        }},
+        "defaultLoadSettings": {"M": {
+          "autoAssign": {"BOOL": false},
+          "requireSignature": {"BOOL": true},
+          "allowDriverNotes": {"BOOL": true}
+        }}
+      }},
+      "notifications": {"M": {
+        "emailNotifications": {"M": {
+          "loadAssigned": {"BOOL": true},
+          "loadCompleted": {"BOOL": true},
+          "loadCancelled": {"BOOL": true},
+          "dailyDigest": {"BOOL": false}
+        }},
+        "smsNotifications": {"M": {
+          "enabled": {"BOOL": false}
+        }}
+      }}
+    }},
+    "createdAt": {"S": "2025-10-20T08:00:00Z"},
+    "updatedAt": {"S": "2025-10-20T08:00:00Z"}
+  }' \
+  --region $REGION
+
 # Create Driver Users
 echo "Creating driver users..."
 
