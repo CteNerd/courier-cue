@@ -70,12 +70,6 @@ jobs:
             --region us-east-1 \
             2>/dev/null || echo "Bucket already exists"
 
-      - name: Upload Lambda functions
-        run: |
-          cd api/dist/functions
-          zip -r functions.zip .
-          aws s3 cp functions.zip s3://couriercue-dev-deployment/api/functions.zip
-
       - name: Deploy CloudFormation stack
         run: |
           aws cloudformation deploy \
@@ -84,6 +78,11 @@ jobs:
             --parameter-overrides Env=dev EnableCloudFront=true \
             --capabilities CAPABILITY_NAMED_IAM \
             --no-fail-on-empty-changeset
+
+      - name: Deploy API functions
+        run: |
+          chmod +x scripts/deploy-api.sh
+          ./scripts/deploy-api.sh couriercue-dev dev
 
       - name: Get stack outputs
         id: stack-outputs
@@ -183,6 +182,11 @@ jobs:
             --parameter-overrides Env=prod EnableCloudFront=true \
             --capabilities CAPABILITY_NAMED_IAM \
             --no-fail-on-empty-changeset
+
+      - name: Deploy API functions
+        run: |
+          chmod +x scripts/deploy-api.sh
+          ./scripts/deploy-api.sh couriercue-prod prod
 
       - name: Get stack outputs
         id: stack-outputs
