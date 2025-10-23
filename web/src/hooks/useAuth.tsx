@@ -20,13 +20,11 @@ console.log('[AUTH DEBUG] OAuth Configuration:', {
 
 // Only import Cognito if not in local dev mode
 let CognitoUserPool: any;
-let CognitoUserSession: any;
 let userPool: any;
 
 if (!IS_LOCAL_DEV && typeof window !== 'undefined') {
   import('amazon-cognito-identity-js').then((cognito) => {
     CognitoUserPool = cognito.CognitoUserPool;
-    CognitoUserSession = cognito.CognitoUserSession;
     userPool = new CognitoUserPool({
       UserPoolId: USER_POOL_ID,
       ClientId: CLIENT_ID,
