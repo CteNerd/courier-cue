@@ -85,7 +85,7 @@ export default function DashboardPage() {
               <p className="text-3xl font-bold text-green-600 dark:text-green-400">
                 {loading ? '...' : stats.completed}
               </p>
-            </a>
+            </div>
           </div>
 
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
