@@ -27,7 +27,7 @@ export interface CreateLoadFormData {
 export interface CreateLoadFormProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (loadData: any) => void;
+  onSubmit: (loadData: CreateLoadFormData) => void;
 }
 
 export const UNIT_OPTIONS = [

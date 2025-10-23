@@ -2,7 +2,7 @@ import { useUser } from '../hooks/useUser';
 import { loadsApi } from '../lib/api';
 import { Navigation } from '../components/Navigation';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface Load {
   loadId: string;
@@ -42,21 +42,13 @@ export default function DriverLoadsPage() {
   });
 
   // Redirect non-drivers
-  if (!currentUser || currentUser.role !== 'driver') {
-    return <Navigate to="/login" replace />;
-  }
-
   // Load driver's loads on mount
-  useEffect(() => {
-    loadMyLoads();
-  }, [filters]);
-
-  const loadMyLoads = async () => {
+  const loadMyLoads = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       
-      const apiFilters: any = {};
+      const apiFilters: Record<string, string> = {};
       if (filters.dateFrom) apiFilters.from = filters.dateFrom;
       if (filters.dateTo) apiFilters.to = filters.dateTo;
       
@@ -75,7 +67,17 @@ export default function DriverLoadsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters]);
+
+  useEffect(() => {
+    if (currentUser && currentUser.role === 'driver') {
+      loadMyLoads();
+    }
+  }, [filters, currentUser, loadMyLoads]);
+
+  if (!currentUser || currentUser.role !== 'driver') {
+    return <Navigate to="/login" replace />;
+  }
 
   const getStatusColor = (status: Load['status']) => {
     switch (status) {
@@ -113,7 +115,7 @@ export default function DriverLoadsPage() {
       case 'DELIVERED':
         return (
           <button 
-            onClick={() => navigate(`/loads/${load.loadId}`)}
+            onClick={() => navigate(`/loads/${load.id}`)}
             className="bg-purple-600 text-white px-4 py-2 rounded-md text-sm hover:bg-purple-700"
           >
             Get Signature
@@ -123,7 +125,7 @@ export default function DriverLoadsPage() {
       default:
         return (
           <button 
-            onClick={() => navigate(`/loads/${load.loadId}`)}
+            onClick={() => navigate(`/loads/${load.id}`)}
             className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md text-sm hover:bg-gray-300"
           >
             View Details
@@ -269,13 +271,13 @@ export default function DriverLoadsPage() {
             <div className="space-y-4">
               {myLoads.map((load) => (
                 <div 
-                  key={load.loadId} 
+                  key={load.id} 
                   className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow cursor-pointer hover:shadow-md transition-shadow"
-                  onClick={() => navigate(`/loads/${load.loadId}`)}
+                  onClick={() => navigate(`/loads/${load.id}`)}
                 >
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{load.loadId}</h3>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{load.id}</h3>
                       <p className="text-gray-600 dark:text-gray-400">{load.serviceAddress.name}</p>
                     </div>
                     <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(load.status)}`}>

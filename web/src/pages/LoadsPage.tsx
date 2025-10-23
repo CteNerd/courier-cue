@@ -2,7 +2,7 @@ import { useUser } from '../hooks/useUser';
 import { loadsApi, orgApi } from '../lib/api';
 import CreateLoadForm from '../components/CreateLoadForm';
 import { Navigation } from '../components/Navigation';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 
 interface Load {
   loadId: string;
@@ -55,20 +55,19 @@ export default function LoadsPage() {
   });
   const [showFilters, setShowFilters] = useState(false);
   
-  // Redirect drivers to their specific loads page
-  if (!currentUser) return null;
-  
-  if (currentUser.role === 'driver') {
-    window.location.href = '/driver/loads';
-    return null;
-  }
+  // Build API filters
+  const buildApiFilters = useCallback(() => {
+    const apiFilters: Record<string, string> = {};
+    if (filters.status) apiFilters.status = filters.status;
+    if (filters.driverId) apiFilters.driverId = filters.driverId;
+    if (filters.searchQuery) apiFilters.q = filters.searchQuery;
+    if (filters.dateFrom) apiFilters.from = filters.dateFrom;
+    if (filters.dateTo) apiFilters.to = filters.dateTo;
+    return apiFilters;
+  }, [filters]);
 
-  // Load data on mount
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  // Load data function
+  const loadData = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -87,22 +86,22 @@ export default function LoadsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [buildApiFilters]);
 
-  const buildApiFilters = () => {
-    const apiFilters: any = {};
-    if (filters.status) apiFilters.status = filters.status;
-    if (filters.driverId) apiFilters.driverId = filters.driverId;
-    if (filters.searchQuery) apiFilters.q = filters.searchQuery;
-    if (filters.dateFrom) apiFilters.from = filters.dateFrom;
-    if (filters.dateTo) apiFilters.to = filters.dateTo;
-    return apiFilters;
-  };
-
-  // Apply filters
+  // Load data when component mounts or filters change
   useEffect(() => {
-    loadData();
-  }, [filters]);
+    if (currentUser && currentUser.role !== 'driver') {
+      loadData();
+    }
+  }, [currentUser, loadData]);
+
+  // Redirect drivers to their specific loads page
+  if (!currentUser) return null;
+
+  if (currentUser.role === 'driver') {
+    window.location.href = '/driver/loads';
+    return null;
+  }
 
   const availableDrivers = users.filter(user => user.role === 'driver');
 

@@ -1,10 +1,15 @@
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useUser } from '../hooks/useUser';
 import { loadsApi } from '../lib/api';
 import { Navigation } from '../components/Navigation';
 import SignatureCanvas from '../components/SignatureCanvas';
 import { Load } from '../data/mockData';
+
+interface UserWithId {
+  userId: string;
+  role: string;
+}
 
 export default function LoadDetailsPage() {
   const { id } = useParams();
@@ -16,13 +21,7 @@ export default function LoadDetailsPage() {
   const [updating, setUpdating] = useState(false);
   const [showSignature, setShowSignature] = useState(false);
 
-  useEffect(() => {
-    if (id) {
-      loadLoadDetails();
-    }
-  }, [id]);
-
-  const loadLoadDetails = async () => {
+  const loadLoadDetails = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
@@ -34,13 +33,19 @@ export default function LoadDetailsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
+
+  useEffect(() => {
+    if (id) {
+      loadLoadDetails();
+    }
+  }, [id, loadLoadDetails]);
 
   const handleStatusUpdate = async (action: 'IN_TRANSIT' | 'DELIVERED') => {
     if (!load || !currentUser) return;
 
     // Check authorization - only assigned driver can update status
-    if (currentUser.role === 'driver' && load.assignedDriverId !== (currentUser as any).userId) {
+    if (currentUser.role === 'driver' && load.assignedDriverId !== (currentUser as UserWithId).userId) {
       setError('You can only update loads assigned to you');
       return;
     }
@@ -94,7 +99,7 @@ export default function LoadDetailsPage() {
     if (!load || updating) return null;
 
     const isDriver = currentUser?.role === 'driver';
-    const isAssignedDriver = isDriver && load.assignedDriverId === (currentUser as any)?.userId;
+    const isAssignedDriver = isDriver && load.assignedDriverId === (currentUser as UserWithId)?.userId;
 
     switch (load.status) {
       case 'ASSIGNED':

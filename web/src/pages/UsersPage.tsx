@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useUser } from '../hooks/useUser';
 import { useUsers } from '../hooks/useUsers';
 import { Navigation } from '../components/Navigation';
-import { RoleFilter } from '../types/user';
+import { RoleFilter, UserRole, UserStatus } from '../types/user';
 import InviteUserForm from '../components/users/InviteUserForm';
 import UserTable from '../components/users/UserTable';
 import UserFilters from '../components/users/UserFilters';
@@ -42,7 +42,7 @@ export default function UsersPage() {
   const filteredUsers = getFilteredUsers(selectedRole);
   const userCounts = getUserCounts;
 
-  const handleInviteUser = async (userData: { email: string; displayName: string; role: any }) => {
+  const handleInviteUser = async (userData: { email: string; displayName: string; role: UserRole }) => {
     try {
       setActionLoading('invite');
       setActionError(null);
@@ -56,7 +56,7 @@ export default function UsersPage() {
     }
   };
 
-  const handleUpdateUserStatus = async (userId: string, status: any) => {
+  const handleUpdateUserStatus = async (userId: string, status: UserStatus) => {
     try {
       setActionLoading(`status-${userId}`);
       setActionError(null);
@@ -69,7 +69,7 @@ export default function UsersPage() {
     }
   };
 
-  const handleUpdateUserRole = async (userId: string, role: any) => {
+  const handleUpdateUserRole = async (userId: string, role: UserRole) => {
     try {
       setActionLoading(`role-${userId}`);
       setActionError(null);
