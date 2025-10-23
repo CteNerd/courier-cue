@@ -1,10 +1,12 @@
 import { useUser } from '../hooks/useUser';
 import { Navigation } from '../components/Navigation';
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { loadsApi } from '../lib/api';
 
 export default function DashboardPage() {
   const { currentUser } = useUser();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({ total: 0, pending: 0, completed: 0 });
   const [loading, setLoading] = useState(true);
 
@@ -55,8 +57,8 @@ export default function DashboardPage() {
           <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">Dashboard</h2>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <a
-              href={loadBaseUrl}
+            <div
+              onClick={() => navigate(loadBaseUrl)}
               className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer"
             >
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
@@ -65,25 +67,25 @@ export default function DashboardPage() {
               <p className="text-3xl font-bold text-blue-600 dark:text-blue-400">
                 {loading ? '...' : stats.total}
               </p>
-            </a>
-            <a
-              href={`${loadBaseUrl}?status=pending`}
+            </div>
+            <div
+              onClick={() => navigate(`${loadBaseUrl}?status=pending`)}
               className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer"
             >
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Pending</h3>
               <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400">
                 {loading ? '...' : stats.pending}
               </p>
-            </a>
-            <a
-              href={`${loadBaseUrl}?status=completed`}
+            </div>
+            <div
+              onClick={() => navigate(`${loadBaseUrl}?status=completed`)}
               className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow hover:shadow-md transition-shadow cursor-pointer"
             >
               <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">Completed</h3>
               <p className="text-3xl font-bold text-green-600 dark:text-green-400">
                 {loading ? '...' : stats.completed}
               </p>
-            </a>
+            </div>
           </div>
 
           <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">

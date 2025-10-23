@@ -157,10 +157,20 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   const logout = () => {
+    console.log('[USER DEBUG] Logout called');
     setCurrentUser(null);
     setAuthToken(null);
     localStorage.removeItem('currentUser');
     localStorage.removeItem('authToken');
+    
+    // Also trigger Cognito logout if using real auth
+    if (cognitoAuth.isAuthenticated) {
+      console.log('[USER DEBUG] Triggering Cognito logout...');
+      cognitoAuth.logout();
+    } else {
+      console.log('[USER DEBUG] Redirecting to login...');
+      window.location.href = '/login';
+    }
   };
 
   return (

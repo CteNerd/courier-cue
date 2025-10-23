@@ -4,6 +4,7 @@ import { setAuthToken } from '../lib/api';
 const USER_POOL_ID = import.meta.env.VITE_COGNITO_USER_POOL_ID || '';
 const CLIENT_ID = import.meta.env.VITE_COGNITO_CLIENT_ID || '';
 const COGNITO_DOMAIN = import.meta.env.VITE_COGNITO_DOMAIN || '';
+// Always use the current window origin for redirect URI to support both S3 and CloudFront
 const REDIRECT_URI = typeof window !== 'undefined' ? window.location.origin + '/callback' : '';
 const IS_LOCAL_DEV = import.meta.env.VITE_LOCAL_DEV === 'true';
 
@@ -13,6 +14,7 @@ console.log('[AUTH DEBUG] OAuth Configuration:', {
   CLIENT_ID,
   COGNITO_DOMAIN,
   REDIRECT_URI,
+  windowOrigin: typeof window !== 'undefined' ? window.location.origin : 'N/A',
   LOCAL_DEV: import.meta.env.VITE_LOCAL_DEV,
   USE_MOCK_API: import.meta.env.VITE_USE_MOCK_API,
   IS_LOCAL_DEV,
@@ -50,6 +52,23 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Restore token immediately on module load (before React renders)
+const initToken = () => {
+  if (typeof window !== 'undefined' && import.meta.env.VITE_LOCAL_DEV !== 'true') {
+    try {
+      const storedToken = localStorage.getItem('access_token');
+      if (storedToken) {
+        // Set token immediately so it's available for API calls
+        setAuthToken(storedToken);
+        console.log('[AUTH DEBUG] Token restored from localStorage on init');
+      }
+    } catch (e) {
+      console.error('[AUTH DEBUG] Failed to restore token on init:', e);
+    }
+  }
+};
+initToken();
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -153,16 +172,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = () => {
+    // Always use current window origin to support both S3 and CloudFront URLs
+    const redirectUri = window.location.origin + '/callback';
+    
     // Redirect to Cognito Hosted UI
     const authUrl = `${COGNITO_DOMAIN}/oauth2/authorize?client_id=${CLIENT_ID}&response_type=code&scope=openid+email+profile&redirect_uri=${encodeURIComponent(
-      REDIRECT_URI
+      redirectUri
     )}`;
     
     console.log('[AUTH DEBUG] Initiating login redirect:', {
       COGNITO_DOMAIN,
       CLIENT_ID,
-      REDIRECT_URI,
-      encodedRedirectUri: encodeURIComponent(REDIRECT_URI),
+      currentOrigin: window.location.origin,
+      redirectUri,
+      encodedRedirectUri: encodeURIComponent(redirectUri),
       fullAuthUrl: authUrl,
     });
     
@@ -187,14 +210,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error('[AUTH DEBUG] Failed to clear tokens:', e);
     }
     
+    console.log('[AUTH DEBUG] Logout initiated, redirecting to login...');
+    
     // Redirect appropriately based on environment
     if (!IS_LOCAL_DEV) {
+      // Always use current window origin to support both S3 and CloudFront URLs
+      const logoutRedirectUri = window.location.origin + '/login';
       const logoutUrl = `${COGNITO_DOMAIN}/logout?client_id=${CLIENT_ID}&logout_uri=${encodeURIComponent(
-        window.location.origin
+        logoutRedirectUri
       )}`;
+      console.log('[AUTH DEBUG] Redirecting to Cognito logout:', {
+        logoutUrl,
+        currentOrigin: window.location.origin,
+        logoutRedirectUri,
+      });
       window.location.href = logoutUrl;
     } else {
       // For local dev, just redirect to login
+      console.log('[AUTH DEBUG] Local dev logout, redirecting to /login');
       window.location.href = '/login';
     }
   };
@@ -256,11 +289,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       
       // Store tokens and set auth
       if (tokens.id_token) {
-        setAuthToken(tokens.access_token);
+        // Use ID token for API calls as it contains custom attributes
+        setAuthToken(tokens.id_token);
         
         // Persist tokens to localStorage
         try {
           localStorage.setItem('access_token', tokens.access_token);
+          localStorage.setItem('id_token', tokens.id_token);
           if (tokens.refresh_token) {
             localStorage.setItem('refresh_token', tokens.refresh_token);
           }
@@ -276,7 +311,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           userId: idTokenPayload.sub,
           email: idTokenPayload.email,
           orgId: idTokenPayload['custom:orgId'] || '',
-          role: idTokenPayload['cognito:groups']?.[0] || 'driver',
+          role: idTokenPayload['custom:role'] || 'driver',
           displayName: idTokenPayload.name || idTokenPayload.email,
         });
         

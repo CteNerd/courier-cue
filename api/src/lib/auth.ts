@@ -56,14 +56,33 @@ export function getAuthContext(event: APIGatewayProxyEventV2): AuthContext {
     throw new AuthError('No authorization context found', 401);
   }
 
+  // Parse cognito:groups - it can be a string, array, or stringified array
+  let groups: string[] = [];
+  if (claims['cognito:groups']) {
+    const groupsValue = claims['cognito:groups'];
+    if (Array.isArray(groupsValue)) {
+      groups = groupsValue;
+    } else if (typeof groupsValue === 'string') {
+      // Handle both comma-separated and JSON stringified arrays
+      if (groupsValue.startsWith('[')) {
+        try {
+          groups = JSON.parse(groupsValue);
+        } catch {
+          groups = [groupsValue];
+        }
+      } else {
+        groups = groupsValue.split(',');
+      }
+    }
+  }
+
   return {
     userId: claims.sub as string,
     email: claims.email as string,
-    orgId: (claims['custom:orgId'] as string) || '',
-    role: (claims['custom:role'] as string) || 'driver',
-    groups: claims['cognito:groups']
-      ? (claims['cognito:groups'] as string).split(',')
-      : [],
+    // ID token has custom: prefix, access token doesn't
+    orgId: (claims['custom:orgId'] as string) || (claims.orgId as string) || '',
+    role: (claims['custom:role'] as string) || (claims.role as string) || 'driver',
+    groups,
   };
 }
 
@@ -87,11 +106,16 @@ export function verifyOrgAccess(authContext: AuthContext, orgId: string): void {
  */
 export function requireRole(authContext: AuthContext, allowedRoles: string[]): void {
   // log authContext for debugging
-  console.log('Auth context:', authContext);
+  console.log('Auth context:', JSON.stringify(authContext, null, 2));
+  console.log('Allowed roles:', allowedRoles);
+  console.log('authContext.role:', authContext.role);
+  console.log('authContext.groups:', authContext.groups);
 
   const hasRole =
     allowedRoles.includes(authContext.role) ||
     authContext.groups.some((group) => allowedRoles.includes(group));
+
+  console.log('hasRole:', hasRole);
 
   if (!hasRole) {
     throw new AuthError(
