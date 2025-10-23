@@ -3,6 +3,29 @@ import { render, screen } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
 import LoginPage from '../../pages/LoginPage';
 
+// Mock environment variables
+vi.mock('import.meta', () => ({
+  env: {
+    VITE_COGNITO_USER_POOL_ID: 'test-pool-id',
+    VITE_COGNITO_CLIENT_ID: 'test-client-id',
+    VITE_COGNITO_DOMAIN: 'https://test.auth.us-east-1.amazoncognito.com',
+    VITE_LOCAL_DEV: 'false',
+    VITE_USE_MOCK_API: 'false',
+  },
+}));
+
+// Mock useAuth hook
+vi.mock('../../hooks/useAuth', () => ({
+  useAuth: () => ({
+    login: vi.fn(),
+    logout: vi.fn(),
+    handleCallback: vi.fn(),
+    user: null,
+    isAuthenticated: false,
+    isLoading: false,
+  }),
+}));
+
 // Mock useUser hook
 vi.mock('../../hooks/useUser', () => ({
   useUser: () => ({
@@ -33,7 +56,7 @@ vi.mock('../../hooks/useTheme', () => ({
 }));
 
 describe('LoginPage', () => {
-  it('should render login page', () => {
+  it('should render login page with Cognito sign-in button', () => {
     render(
       <BrowserRouter>
         <LoginPage />
@@ -41,18 +64,17 @@ describe('LoginPage', () => {
     );
 
     expect(screen.getByText('Sign in to CourierCue')).toBeInTheDocument();
-    expect(screen.getByText('Demo delivery management system')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
+    expect(screen.getByText('Delivery management system')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /sign in with cognito/i })).toBeInTheDocument();
   });
 
-  it('should have sign in button', () => {
+  it('should display redirect message', () => {
     render(
       <BrowserRouter>
         <LoginPage />
       </BrowserRouter>
     );
 
-    const button = screen.getByRole('button', { name: /sign in/i });
-    expect(button).toBeInTheDocument();
+    expect(screen.getByText(/You will be redirected to AWS Cognito for secure authentication/i)).toBeInTheDocument();
   });
 });
