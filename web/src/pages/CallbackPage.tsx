@@ -9,16 +9,37 @@ export default function CallbackPage() {
 
   useEffect(() => {
     const code = searchParams.get('code');
+    const error = searchParams.get('error');
+    const errorDescription = searchParams.get('error_description');
+    
+    console.log('[CALLBACK DEBUG] CallbackPage mounted:', {
+      hasCode: !!code,
+      code: code?.substring(0, 20) + '...',
+      error,
+      errorDescription,
+      fullUrl: window.location.href,
+      searchParams: Object.fromEntries(searchParams),
+    });
+    
+    if (error) {
+      console.error('[CALLBACK DEBUG] OAuth error received:', { error, errorDescription });
+      navigate('/login');
+      return;
+    }
+    
     if (code) {
+      console.log('[CALLBACK DEBUG] Processing authorization code...');
       handleCallback(code)
         .then(() => {
+          console.log('[CALLBACK DEBUG] Callback successful, navigating to dashboard');
           navigate('/dashboard');
         })
         .catch((error) => {
-          console.error('Callback failed:', error);
+          console.error('[CALLBACK DEBUG] Callback failed:', error);
           navigate('/login');
         });
     } else {
+      console.warn('[CALLBACK DEBUG] No code or error found, redirecting to login');
       navigate('/login');
     }
   }, [searchParams, handleCallback, navigate]);

@@ -15,12 +15,21 @@ export default function LoginPage() {
     setError('');
     setIsLoading(true);
 
+    console.log('[LOGIN DEBUG] Form submitted:', {
+      email,
+      hasPassword: !!password,
+      LOCAL_DEV: import.meta.env.VITE_LOCAL_DEV,
+      USE_MOCK_API: import.meta.env.VITE_USE_MOCK_API,
+    });
+
     try {
       const success = await login(email, password);
+      console.log('[LOGIN DEBUG] Login result:', { success });
       if (!success) {
         setError('Invalid email or password');
       }
     } catch (err) {
+      console.error('[LOGIN DEBUG] Login error:', err);
       setError('Login failed. Please try again.');
     } finally {
       setIsLoading(false);

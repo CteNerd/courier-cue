@@ -10,6 +10,17 @@ const CLIENT_ID = import.meta.env.VITE_COGNITO_CLIENT_ID || '';
 const COGNITO_DOMAIN = import.meta.env.VITE_COGNITO_DOMAIN || '';
 const REDIRECT_URI = window.location.origin + '/callback';
 
+// Debug logging for OAuth configuration
+console.log('[AUTH DEBUG] OAuth Configuration:', {
+  USER_POOL_ID,
+  CLIENT_ID,
+  COGNITO_DOMAIN,
+  REDIRECT_URI,
+  LOCAL_DEV: import.meta.env.VITE_LOCAL_DEV,
+  USE_MOCK_API: import.meta.env.VITE_USE_MOCK_API,
+  ALL_ENV_VARS: import.meta.env,
+});
+
 const userPool = new CognitoUserPool({
   UserPoolId: USER_POOL_ID,
   ClientId: CLIENT_ID,
@@ -100,6 +111,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const authUrl = `${COGNITO_DOMAIN}/oauth2/authorize?client_id=${CLIENT_ID}&response_type=code&scope=openid+email+profile&redirect_uri=${encodeURIComponent(
       REDIRECT_URI
     )}`;
+    
+    console.log('[AUTH DEBUG] Initiating login redirect:', {
+      COGNITO_DOMAIN,
+      CLIENT_ID,
+      REDIRECT_URI,
+      encodedRedirectUri: encodeURIComponent(REDIRECT_URI),
+      fullAuthUrl: authUrl,
+    });
+    
     window.location.href = authUrl;
   };
 
@@ -120,18 +140,79 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const handleCallback = async (code: string) => {
     try {
-      // Exchange code for tokens
-      // Note: In production, this should go through your backend
-      // For now, we'll simulate by storing a mock session
+      console.log('[AUTH DEBUG] Starting handleCallback:', {
+        code,
+        codeLength: code.length,
+        COGNITO_DOMAIN,
+        CLIENT_ID,
+        REDIRECT_URI,
+      });
       
-      // For MVP, we'll use a simplified flow
-      // In production, you'd exchange the code for tokens via your backend
-      console.log('Handling OAuth callback with code:', code);
+      // Exchange code for tokens via Cognito token endpoint
+      // In production, this should go through your backend for security
+      const tokenUrl = `${COGNITO_DOMAIN}/oauth2/token`;
+      const tokenParams = new URLSearchParams({
+        grant_type: 'authorization_code',
+        client_id: CLIENT_ID,
+        code: code,
+        redirect_uri: REDIRECT_URI,
+      });
       
-      // Simulate successful auth
-      await checkAuth();
+      console.log('[AUTH DEBUG] Exchanging code for tokens:', {
+        tokenUrl,
+        params: Object.fromEntries(tokenParams),
+      });
+      
+      const tokenResponse = await fetch(tokenUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: tokenParams.toString(),
+      });
+      
+      console.log('[AUTH DEBUG] Token response status:', tokenResponse.status);
+      
+      if (!tokenResponse.ok) {
+        const errorText = await tokenResponse.text();
+        console.error('[AUTH DEBUG] Token exchange failed:', {
+          status: tokenResponse.status,
+          statusText: tokenResponse.statusText,
+          error: errorText,
+        });
+        throw new Error(`Token exchange failed: ${tokenResponse.status} - ${errorText}`);
+      }
+      
+      const tokens = await tokenResponse.json();
+      console.log('[AUTH DEBUG] Received tokens:', {
+        hasAccessToken: !!tokens.access_token,
+        hasIdToken: !!tokens.id_token,
+        hasRefreshToken: !!tokens.refresh_token,
+        tokenType: tokens.token_type,
+        expiresIn: tokens.expires_in,
+        accessTokenPreview: tokens.access_token?.substring(0, 50) + '...',
+      });
+      
+      // Store tokens and set auth
+      if (tokens.id_token) {
+        setAuthToken(tokens.access_token);
+        
+        // Decode ID token to get user info
+        const idTokenPayload = JSON.parse(atob(tokens.id_token.split('.')[1]));
+        console.log('[AUTH DEBUG] ID Token payload:', idTokenPayload);
+        
+        setUser({
+          userId: idTokenPayload.sub,
+          email: idTokenPayload.email,
+          orgId: idTokenPayload['custom:orgId'] || '',
+          role: idTokenPayload['cognito:groups']?.[0] || 'driver',
+          displayName: idTokenPayload.name || idTokenPayload.email,
+        });
+        
+        console.log('[AUTH DEBUG] handleCallback completed successfully');
+      }
     } catch (error) {
-      console.error('Callback error:', error);
+      console.error('[AUTH DEBUG] Callback error:', error);
       throw error;
     }
   };
