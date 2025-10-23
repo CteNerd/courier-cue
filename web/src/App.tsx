@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useUser } from './hooks/useUser';
 import LoginPage from './pages/LoginPage';
+import CallbackPage from './pages/CallbackPage';
 import DashboardPage from './pages/DashboardPage';
 import LoadsPage from './pages/LoadsPage';
 import DriverLoadsPage from './pages/DriverLoadsPage';
@@ -16,6 +17,7 @@ function App() {
     return (
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/callback" element={<CallbackPage />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     );
