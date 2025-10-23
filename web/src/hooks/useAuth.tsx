@@ -51,6 +51,23 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Restore token immediately on module load (before React renders)
+const initToken = () => {
+  if (typeof window !== 'undefined' && import.meta.env.VITE_LOCAL_DEV !== 'true') {
+    try {
+      const storedToken = localStorage.getItem('access_token');
+      if (storedToken) {
+        // Set token immediately so it's available for API calls
+        setAuthToken(storedToken);
+        console.log('[AUTH DEBUG] Token restored from localStorage on init');
+      }
+    } catch (e) {
+      console.error('[AUTH DEBUG] Failed to restore token on init:', e);
+    }
+  }
+};
+initToken();
+
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
