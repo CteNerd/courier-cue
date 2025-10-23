@@ -61,9 +61,11 @@ export default function CreateLoadForm({ isOpen, onClose, onSubmit }: CreateLoad
         serviceAddress: formData.serviceAddress,
         items: formData.items
           .filter(item => item.description.trim() !== '')
-          .map(item => ({
-            type: item.description,
-            qty: item.qty
+          .map((item, index) => ({
+            id: `item-${index}`,
+            description: item.description,
+            qty: item.qty,
+            unit: 'piece' // default unit
           })),
         assignedDriverId: formData.assignedDriverId || undefined,
         notes: formData.notes || undefined,
@@ -109,9 +111,9 @@ export default function CreateLoadForm({ isOpen, onClose, onSubmit }: CreateLoad
             />
 
             <LoadAssignment 
-              assignedDriverId={formData.assignedDriverId}
+              assignedDriverId={formData.assignedDriverId || ''}
               priority={formData.priority}
-              notes={formData.notes}
+              notes={formData.notes || ''}
               drivers={drivers}
               onDriverChange={handleDriverChange}
               onPriorityChange={handlePriorityChange}

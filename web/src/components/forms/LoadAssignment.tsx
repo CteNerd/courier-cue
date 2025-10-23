@@ -8,9 +8,9 @@ interface Driver {
 }
 
 interface LoadAssignmentProps {
-  assignedDriverId: string;
+  assignedDriverId?: string;
   priority: 'low' | 'normal' | 'high';
-  notes: string;
+  notes?: string;
   drivers: Driver[];
   onDriverChange: (driverId: string) => void;
   onPriorityChange: (priority: 'low' | 'normal' | 'high') => void;

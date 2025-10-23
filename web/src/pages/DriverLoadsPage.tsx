@@ -3,31 +3,7 @@ import { loadsApi } from '../lib/api';
 import { Navigation } from '../components/Navigation';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useCallback } from 'react';
-
-interface Load {
-  loadId: string;
-  status: 'PENDING' | 'ASSIGNED' | 'EN_ROUTE' | 'DELIVERED' | 'COMPLETED';
-  createdAt: string;
-  updatedAt: string;
-  assignedDriverId?: string;
-  serviceAddress: {
-    name: string;
-    street: string;
-    city: string;
-    state: string;
-    zip: string;
-    contact: string;
-    phone: string;
-    email?: string;
-  };
-  items: Array<{
-    type: string;
-    qty: number;
-  }>;
-  notes?: string;
-  unloadLocation?: string;
-  shipVia?: string;
-}
+import { Load } from '../data/mockData';
 
 export default function DriverLoadsPage() {
   const { currentUser } = useUser();
@@ -95,7 +71,7 @@ export default function DriverLoadsPage() {
       case 'ASSIGNED':
         return (
           <button 
-            onClick={() => navigate(`/loads/${load.loadId}`)}
+            onClick={() => navigate(`/loads/${load.id}`)}
             className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700"
           >
             Start Route
@@ -105,7 +81,7 @@ export default function DriverLoadsPage() {
       case 'EN_ROUTE':
         return (
           <button 
-            onClick={() => navigate(`/loads/${load.loadId}`)}
+            onClick={() => navigate(`/loads/${load.id}`)}
             className="bg-green-600 text-white px-4 py-2 rounded-md text-sm hover:bg-green-700"
           >
             Mark Delivered

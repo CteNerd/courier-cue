@@ -18,9 +18,9 @@ export interface ServiceAddress {
 
 export interface CreateLoadFormData {
   serviceAddress: ServiceAddress;
-  assignedDriverId: string;
+  assignedDriverId?: string;
   items: LoadItem[];
-  notes: string;
+  notes?: string;
   priority: 'low' | 'normal' | 'high';
 }
 
