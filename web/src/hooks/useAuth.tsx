@@ -57,7 +57,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 const initToken = () => {
   if (typeof window !== 'undefined' && import.meta.env.VITE_LOCAL_DEV !== 'true') {
     try {
-      const storedToken = localStorage.getItem('access_token');
+      const storedToken = localStorage.getItem('id_token');
       if (storedToken) {
         // Set token immediately so it's available for API calls
         setAuthToken(storedToken);
@@ -100,7 +100,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       // Try to restore token from localStorage
       try {
-        const storedToken = localStorage.getItem('access_token');
+        const storedToken = localStorage.getItem('id_token');
         if (storedToken) {
           console.log('[AUTH DEBUG] Restoring token from localStorage');
           setAuthToken(storedToken);
@@ -113,6 +113,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // Check if token is expired
             if (tokenPayload.exp && tokenPayload.exp * 1000 < Date.now()) {
               console.log('[AUTH DEBUG] Token expired, clearing');
+              localStorage.removeItem('id_token');
               localStorage.removeItem('access_token');
               localStorage.removeItem('refresh_token');
               setUser(null);
@@ -131,6 +132,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             return;
           } catch (decodeError) {
             console.error('[AUTH DEBUG] Failed to decode stored token:', decodeError);
+            localStorage.removeItem('id_token');
             localStorage.removeItem('access_token');
           }
         }
@@ -202,6 +204,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     // Clear stored tokens
     try {
+      localStorage.removeItem('id_token');
       localStorage.removeItem('access_token');
       localStorage.removeItem('refresh_token');
       localStorage.removeItem('currentUser');
@@ -294,8 +297,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         
         // Persist tokens to localStorage
         try {
-          localStorage.setItem('access_token', tokens.access_token);
           localStorage.setItem('id_token', tokens.id_token);
+          localStorage.setItem('access_token', tokens.access_token);
           if (tokens.refresh_token) {
             localStorage.setItem('refresh_token', tokens.refresh_token);
           }
