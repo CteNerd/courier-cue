@@ -2,6 +2,12 @@ import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { DarkModeToggle } from '../components/DarkModeToggle';
 
+const DEMO_CREDENTIALS = [
+  { role: 'Admin', email: 'admin@couriertest.com', password: 'Admin123!' },
+  { role: 'Co-Admin', email: 'coadmin@couriertest.com', password: 'Coadmin123!' },
+  { role: 'Driver', email: 'driver@couriertest.com', password: 'Driver123!' },
+];
+
 export default function LoginPage() {
   const { login } = useAuth();
   const [error, setError] = useState('');
@@ -63,8 +69,50 @@ export default function LoginPage() {
             </button>
           </div>
 
-          <div className="mt-6 text-xs text-gray-500 text-center">
+          <div className="mt-6 text-xs text-gray-500 dark:text-gray-400 text-center">
             You will be redirected to AWS Cognito for secure authentication
+          </div>
+
+          <div className="mt-8 border-t border-gray-200 dark:border-gray-700 pt-6">
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-4 text-center">
+              Demo Credentials
+            </h3>
+            <div className="space-y-3">
+              {DEMO_CREDENTIALS.map((cred, index) => (
+                <div key={index} className="bg-gray-50 dark:bg-gray-700 p-3 rounded-md">
+                  <div className="text-xs font-semibold text-gray-700 dark:text-gray-300 mb-2">
+                    {cred.role}
+                  </div>
+                  <div className="space-y-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Email:</span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(cred.email);
+                        }}
+                        className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-mono"
+                      >
+                        {cred.email} 📋
+                      </button>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-gray-600 dark:text-gray-400">Password:</span>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(cred.password);
+                        }}
+                        className="text-xs text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 font-mono"
+                      >
+                        {cred.password} 📋
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-4">
+              Click on credentials to copy them
+            </p>
           </div>
         </div>
       </div>
