@@ -109,14 +109,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
       localStorage.removeItem('currentUser');
     }
   }, [cognitoAuth.user, currentUser]);
-        return user;
-      } catch {
-        localStorage.removeItem('currentUser');
-        localStorage.removeItem('authToken');
-      }
-    }
-    return null;
-  });
 
   const switchUser = (user: User) => {
     setCurrentUser(user);
@@ -179,8 +171,6 @@ export function UserProvider({ children }: { children: ReactNode }) {
         login,
         logout,
         isAuthenticated: !!currentUser || cognitoAuth.isAuthenticated
-      }}
-        isAuthenticated: !!currentUser
       }}
     >
       {children}
