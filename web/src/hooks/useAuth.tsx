@@ -4,6 +4,7 @@ import { setAuthToken } from '../lib/api';
 const USER_POOL_ID = import.meta.env.VITE_COGNITO_USER_POOL_ID || '';
 const CLIENT_ID = import.meta.env.VITE_COGNITO_CLIENT_ID || '';
 const COGNITO_DOMAIN = import.meta.env.VITE_COGNITO_DOMAIN || '';
+// Always use the current window origin for redirect URI to support both S3 and CloudFront
 const REDIRECT_URI = typeof window !== 'undefined' ? window.location.origin + '/callback' : '';
 const IS_LOCAL_DEV = import.meta.env.VITE_LOCAL_DEV === 'true';
 
@@ -13,6 +14,7 @@ console.log('[AUTH DEBUG] OAuth Configuration:', {
   CLIENT_ID,
   COGNITO_DOMAIN,
   REDIRECT_URI,
+  windowOrigin: typeof window !== 'undefined' ? window.location.origin : 'N/A',
   LOCAL_DEV: import.meta.env.VITE_LOCAL_DEV,
   USE_MOCK_API: import.meta.env.VITE_USE_MOCK_API,
   IS_LOCAL_DEV,
@@ -170,16 +172,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const login = () => {
+    // Always use current window origin to support both S3 and CloudFront URLs
+    const redirectUri = window.location.origin + '/callback';
+    
     // Redirect to Cognito Hosted UI
     const authUrl = `${COGNITO_DOMAIN}/oauth2/authorize?client_id=${CLIENT_ID}&response_type=code&scope=openid+email+profile&redirect_uri=${encodeURIComponent(
-      REDIRECT_URI
+      redirectUri
     )}`;
     
     console.log('[AUTH DEBUG] Initiating login redirect:', {
       COGNITO_DOMAIN,
       CLIENT_ID,
-      REDIRECT_URI,
-      encodedRedirectUri: encodeURIComponent(REDIRECT_URI),
+      currentOrigin: window.location.origin,
+      redirectUri,
+      encodedRedirectUri: encodeURIComponent(redirectUri),
       fullAuthUrl: authUrl,
     });
     
@@ -208,10 +214,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     
     // Redirect appropriately based on environment
     if (!IS_LOCAL_DEV) {
+      // Always use current window origin to support both S3 and CloudFront URLs
+      const logoutRedirectUri = window.location.origin + '/login';
       const logoutUrl = `${COGNITO_DOMAIN}/logout?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
-        window.location.origin + '/login'
+        logoutRedirectUri
       )}`;
-      console.log('[AUTH DEBUG] Redirecting to Cognito logout:', logoutUrl);
+      console.log('[AUTH DEBUG] Redirecting to Cognito logout:', {
+        logoutUrl,
+        currentOrigin: window.location.origin,
+        logoutRedirectUri,
+      });
       window.location.href = logoutUrl;
     } else {
       // For local dev, just redirect to login
