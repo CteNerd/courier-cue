@@ -1,6 +1,7 @@
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { setAuthToken } from '../lib/api';
 import { authenticateUser, DEMO_API_USERS } from '../lib/demoAuth';
+import { useAuth } from './useAuth';
 
 export interface User {
   userId: string;
@@ -68,6 +69,8 @@ export const DEMO_USERS_WITH_PASSWORDS: DemoUserWithPassword[] = [
 export const DEMO_USERS: User[] = DEMO_USERS_WITH_PASSWORDS.map(({ password: _password, ...user }) => user);
 
 export function UserProvider({ children }: { children: ReactNode }) {
+  const cognitoAuth = useAuth();
+  
   const [currentUser, setCurrentUser] = useState<User | null>(() => {
     // Load user from localStorage on initialization
     const savedUser = localStorage.getItem('currentUser');
@@ -79,6 +82,33 @@ export function UserProvider({ children }: { children: ReactNode }) {
         if (token) {
           setAuthToken(token);
         }
+        return user;
+      } catch {
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('authToken');
+      }
+    }
+    return null;
+  });
+
+  // Sync with Cognito auth
+  useEffect(() => {
+    if (cognitoAuth.user && !currentUser) {
+      const user: User = {
+        userId: cognitoAuth.user.userId,
+        email: cognitoAuth.user.email,
+        displayName: cognitoAuth.user.displayName || cognitoAuth.user.email.split('@')[0],
+        role: cognitoAuth.user.role as any,
+        orgId: cognitoAuth.user.orgId,
+      };
+      setCurrentUser(user);
+      localStorage.setItem('currentUser', JSON.stringify(user));
+    } else if (!cognitoAuth.user && currentUser && !localStorage.getItem('authToken')) {
+      // Cognito logged out but we still have a user - clear it
+      setCurrentUser(null);
+      localStorage.removeItem('currentUser');
+    }
+  }, [cognitoAuth.user, currentUser]);
         return user;
       } catch {
         localStorage.removeItem('currentUser');
@@ -148,6 +178,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
         switchUser,
         login,
         logout,
+        isAuthenticated: !!currentUser || cognitoAuth.isAuthenticated
+      }}
         isAuthenticated: !!currentUser
       }}
     >
