@@ -309,7 +309,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           userId: idTokenPayload.sub,
           email: idTokenPayload.email,
           orgId: idTokenPayload['custom:orgId'] || '',
-          role: idTokenPayload['cognito:groups']?.[0] || 'driver',
+          role: idTokenPayload['custom:role'] || 'driver',
           displayName: idTokenPayload.name || idTokenPayload.email,
         });
         
