@@ -52,10 +52,10 @@ jobs:
         env:
           VITE_USE_MOCK_API: false
           VITE_LOCAL_DEV: false
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL }}
-          VITE_COGNITO_USER_POOL_ID: ${{ secrets.VITE_COGNITO_USER_POOL_ID }}
-          VITE_COGNITO_CLIENT_ID: ${{ secrets.VITE_COGNITO_CLIENT_ID }}
-          VITE_COGNITO_DOMAIN: ${{ secrets.VITE_COGNITO_DOMAIN }}
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
+          VITE_COGNITO_USER_POOL_ID: ${{ vars.VITE_COGNITO_USER_POOL_ID }}
+          VITE_COGNITO_CLIENT_ID: ${{ vars.VITE_COGNITO_CLIENT_ID }}
+          VITE_COGNITO_DOMAIN: ${{ vars.VITE_COGNITO_DOMAIN }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -151,10 +151,10 @@ jobs:
         env:
           VITE_USE_MOCK_API: false
           VITE_LOCAL_DEV: false
-          VITE_API_BASE_URL: ${{ secrets.VITE_API_BASE_URL_PROD }}
-          VITE_COGNITO_USER_POOL_ID: ${{ secrets.VITE_COGNITO_USER_POOL_ID_PROD }}
-          VITE_COGNITO_CLIENT_ID: ${{ secrets.VITE_COGNITO_CLIENT_ID_PROD }}
-          VITE_COGNITO_DOMAIN: ${{ secrets.VITE_COGNITO_DOMAIN_PROD }}
+          VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL_PROD }}
+          VITE_COGNITO_USER_POOL_ID: ${{ vars.VITE_COGNITO_USER_POOL_ID_PROD }}
+          VITE_COGNITO_CLIENT_ID: ${{ vars.VITE_COGNITO_CLIENT_ID_PROD }}
+          VITE_COGNITO_DOMAIN: ${{ vars.VITE_COGNITO_DOMAIN_PROD }}
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
