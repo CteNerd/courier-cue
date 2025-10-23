@@ -100,8 +100,11 @@ aws dynamodb put-item \
 # Seed demo users
 echo "👤 Creating demo users..."
 ADMIN_USER_ID="admin-123"
-DRIVER_USER_ID="driver-456"
+COADMIN_USER_ID="coadmin-456"
+DRIVER1_USER_ID="driver1-789"
+DRIVER2_USER_ID="driver2-101"
 
+# Admin user
 aws dynamodb put-item \
   --endpoint-url $DYNAMODB_ENDPOINT \
   --table-name $TABLE_NAME \
@@ -118,21 +121,56 @@ aws dynamodb put-item \
     "GSI1SK": {"S": "ORG#'$ORG_ID'"}
   }' 2>/dev/null || echo "Admin user already exists"
 
+# Co-Admin user  
 aws dynamodb put-item \
   --endpoint-url $DYNAMODB_ENDPOINT \
   --table-name $TABLE_NAME \
   --item '{
     "PK": {"S": "ORG#'$ORG_ID'"},
-    "SK": {"S": "USER#'$DRIVER_USER_ID'"},
-    "userId": {"S": "'$DRIVER_USER_ID'"},
-    "email": {"S": "driver@demo.com"},
-    "displayName": {"S": "Driver User"},
+    "SK": {"S": "USER#'$COADMIN_USER_ID'"},
+    "userId": {"S": "'$COADMIN_USER_ID'"},
+    "email": {"S": "coadmin@demo.com"},
+    "displayName": {"S": "Co-Admin User"},
+    "role": {"S": "coadmin"},
+    "isDisabled": {"BOOL": false},
+    "createdAt": {"S": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"},
+    "GSI1PK": {"S": "USER#coadmin@demo.com"},
+    "GSI1SK": {"S": "ORG#'$ORG_ID'"}
+  }' 2>/dev/null || echo "Co-Admin user already exists"
+
+# Driver 1 user
+aws dynamodb put-item \
+  --endpoint-url $DYNAMODB_ENDPOINT \
+  --table-name $TABLE_NAME \
+  --item '{
+    "PK": {"S": "ORG#'$ORG_ID'"},
+    "SK": {"S": "USER#'$DRIVER1_USER_ID'"},
+    "userId": {"S": "'$DRIVER1_USER_ID'"},
+    "email": {"S": "driver1@demo.com"},
+    "displayName": {"S": "Driver Johnson"},
     "role": {"S": "driver"},
     "isDisabled": {"BOOL": false},
     "createdAt": {"S": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"},
-    "GSI1PK": {"S": "USER#driver@demo.com"},
+    "GSI1PK": {"S": "USER#driver1@demo.com"},
     "GSI1SK": {"S": "ORG#'$ORG_ID'"}
-  }' 2>/dev/null || echo "Driver user already exists"
+  }' 2>/dev/null || echo "Driver 1 user already exists"
+
+# Driver 2 user
+aws dynamodb put-item \
+  --endpoint-url $DYNAMODB_ENDPOINT \
+  --table-name $TABLE_NAME \
+  --item '{
+    "PK": {"S": "ORG#'$ORG_ID'"},
+    "SK": {"S": "USER#'$DRIVER2_USER_ID'"},
+    "userId": {"S": "'$DRIVER2_USER_ID'"},
+    "email": {"S": "driver2@demo.com"},
+    "displayName": {"S": "Driver Smith"},
+    "role": {"S": "driver"},
+    "isDisabled": {"BOOL": false},
+    "createdAt": {"S": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"},
+    "GSI1PK": {"S": "USER#driver2@demo.com"},
+    "GSI1SK": {"S": "ORG#'$ORG_ID'"}
+  }' 2>/dev/null || echo "Driver 2 user already exists"
 
 # Seed demo load
 echo "📦 Creating demo load..."
@@ -148,7 +186,7 @@ aws dynamodb put-item \
     "loadId": {"S": "'$LOAD_ID'"},
     "orgId": {"S": "'$ORG_ID'"},
     "status": {"S": "ASSIGNED"},
-    "assignedDriverId": {"S": "'$DRIVER_USER_ID'"},
+    "assignedDriverId": {"S": "'$DRIVER1_USER_ID'"},
     "serviceAddress": {"M": {
       "name": {"S": "COLOPLAST DISTRIBUTION"},
       "street": {"S": "4008 HERITAGE DRIVE"},
@@ -170,7 +208,7 @@ aws dynamodb put-item \
     "createdAt": {"S": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"},
     "updatedAt": {"S": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"},
     "createdBy": {"S": "'$ADMIN_USER_ID'"},
-    "GSI2PK": {"S": "DRIVER#'$DRIVER_USER_ID'"},
+    "GSI2PK": {"S": "DRIVER#'$DRIVER1_USER_ID'"},
     "GSI2SK": {"S": "'$DATE_KEY'#LOAD#'$LOAD_ID'"},
     "GSI3PK": {"S": "STATUS#ASSIGNED"},
     "GSI3SK": {"S": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'#LOAD#'$LOAD_ID'"},
@@ -181,8 +219,10 @@ aws dynamodb put-item \
 echo "✅ Seeding complete!"
 echo ""
 echo "Demo credentials:"
-echo "  Admin: admin@demo.com"
-echo "  Driver: driver@demo.com"
+echo "  Admin: admin@demo.com / admin123"
+echo "  Co-Admin: coadmin@demo.com / coadmin123" 
+echo "  Driver 1: driver1@demo.com / driver123"
+echo "  Driver 2: driver2@demo.com / driver123"
 echo ""
 echo "Services:"
 echo "  DynamoDB: http://localhost:8000"

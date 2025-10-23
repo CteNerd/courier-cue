@@ -1,5 +1,8 @@
 // API client configuration
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000';
+import { mockApi } from './mockApi';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3001';
+const USE_MOCK_API = import.meta.env.VITE_USE_MOCK_API === 'true' || false; // Default to real API for testing
 
 let authToken: string | null = null;
 
@@ -42,8 +45,8 @@ async function request<T>(
   return response.json();
 }
 
-// Organization API
-export const orgApi = {
+// Real Organization API (when connected to backend)
+const realOrgApi = {
   getSettings: () => request('/org/settings'),
   updateSettings: (data: any) =>
     request('/org/settings', {
@@ -63,8 +66,8 @@ export const orgApi = {
     }),
 };
 
-// Loads API
-export const loadsApi = {
+// Real Loads API (when connected to backend)
+const realLoadsApi = {
   create: (data: any) =>
     request('/loads', {
       method: 'POST',
@@ -125,6 +128,10 @@ export const loadsApi = {
   sendEmail: (id: string) =>
     request(`/loads/${id}/email`, { method: 'POST' }),
 };
+
+// Export the appropriate API based on configuration
+export const orgApi = USE_MOCK_API ? mockApi.org : realOrgApi;
+export const loadsApi = USE_MOCK_API ? mockApi.loads : realLoadsApi;
 
 export default {
   org: orgApi,

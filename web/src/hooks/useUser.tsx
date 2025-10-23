@@ -1,10 +1,12 @@
 import { createContext, useContext, useState, ReactNode } from 'react';
+import { setAuthToken } from '../lib/api';
+import { authenticateUser, DEMO_API_USERS } from '../lib/demoAuth';
 
 export interface User {
   userId: string;
   email: string;
   displayName: string;
-  role: 'admin' | 'co-admin' | 'driver';
+  role: 'admin' | 'coadmin' | 'driver';
   orgId: string;
 }
 
@@ -13,7 +15,7 @@ interface DemoUserWithPassword {
   email: string;
   password: string;
   displayName: string;
-  role: 'admin' | 'co-admin' | 'driver';
+  role: 'admin' | 'coadmin' | 'driver';
   orgId: string;
 }
 
@@ -42,7 +44,7 @@ export const DEMO_USERS_WITH_PASSWORDS: DemoUserWithPassword[] = [
     email: 'coadmin@demo.com',
     password: 'coadmin123',
     displayName: 'Co-Admin User',
-    role: 'co-admin',
+    role: 'coadmin',
     orgId: 'demo-org',
   },
   {
@@ -71,9 +73,16 @@ export function UserProvider({ children }: { children: ReactNode }) {
     const savedUser = localStorage.getItem('currentUser');
     if (savedUser) {
       try {
-        return JSON.parse(savedUser);
+        const user = JSON.parse(savedUser);
+        // Restore auth token if user is saved
+        const token = localStorage.getItem('authToken');
+        if (token) {
+          setAuthToken(token);
+        }
+        return user;
       } catch {
         localStorage.removeItem('currentUser');
+        localStorage.removeItem('authToken');
       }
     }
     return null;
@@ -85,7 +94,29 @@ export function UserProvider({ children }: { children: ReactNode }) {
   };
 
   const login = async (email: string, password: string): Promise<boolean> => {
-    // Find user with matching credentials
+    // Check if this is a real API user
+    const realApiToken = authenticateUser(email, password);
+    if (realApiToken) {
+      // Real API authentication
+      const apiUser = DEMO_API_USERS.find(u => u.email === email);
+      if (apiUser) {
+        const user: User = {
+          userId: apiUser.userId,
+          email: apiUser.email,
+          displayName: apiUser.email.split('@')[0],
+          role: apiUser.role as any,
+          orgId: apiUser.orgId
+        };
+        
+        setAuthToken(realApiToken);
+        localStorage.setItem('authToken', realApiToken);
+        setCurrentUser(user);
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        return true;
+      }
+    }
+    
+    // Fallback to demo authentication
     const user = DEMO_USERS_WITH_PASSWORDS.find(
       u => u.email === email && u.password === password
     );
@@ -94,6 +125,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
       const { password: _password, ...userWithoutPassword } = user;
       setCurrentUser(userWithoutPassword);
       localStorage.setItem('currentUser', JSON.stringify(userWithoutPassword));
+      // Clear any existing auth token for demo mode
+      setAuthToken(null);
+      localStorage.removeItem('authToken');
       return true;
     }
     
@@ -102,7 +136,9 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   const logout = () => {
     setCurrentUser(null);
+    setAuthToken(null);
     localStorage.removeItem('currentUser');
+    localStorage.removeItem('authToken');
   };
 
   return (

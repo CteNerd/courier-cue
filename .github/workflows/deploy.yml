@@ -44,6 +44,19 @@ jobs:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           aws-region: us-east-1
 
+      - name: Create deployment bucket if not exists
+        run: |
+          aws s3api create-bucket \
+            --bucket couriercue-dev-deployment \
+            --region us-east-1 \
+            2>/dev/null || echo "Bucket already exists"
+
+      - name: Upload Lambda functions
+        run: |
+          cd api/dist/functions
+          zip -r functions.zip .
+          aws s3 cp functions.zip s3://couriercue-dev-deployment/api/functions.zip
+
       - name: Deploy CloudFormation stack
         run: |
           aws cloudformation deploy \
@@ -119,6 +132,19 @@ jobs:
         with:
           role-to-assume: ${{ secrets.AWS_DEPLOY_ROLE_ARN }}
           aws-region: us-east-1
+
+      - name: Create deployment bucket if not exists
+        run: |
+          aws s3api create-bucket \
+            --bucket couriercue-prod-deployment \
+            --region us-east-1 \
+            2>/dev/null || echo "Bucket already exists"
+
+      - name: Package and upload Lambda functions
+        run: |
+          cd api/dist/functions
+          zip -r functions.zip .
+          aws s3 cp functions.zip s3://couriercue-prod-deployment/api/functions.zip
 
       - name: Deploy CloudFormation stack
         run: |

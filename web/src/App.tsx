@@ -4,6 +4,7 @@ import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
 import LoadsPage from './pages/LoadsPage';
 import DriverLoadsPage from './pages/DriverLoadsPage';
+import LoadDetailsPage from './pages/LoadDetailsPage';
 import UsersPage from './pages/UsersPage';
 import SettingsPage from './pages/SettingsPage';
 
@@ -24,6 +25,7 @@ function App() {
     <Routes>
       <Route path="/dashboard" element={<DashboardPage />} />
       <Route path="/loads" element={<LoadsPage />} />
+      <Route path="/loads/:id" element={<LoadDetailsPage />} />
       <Route path="/driver/loads" element={<DriverLoadsPage />} />
       <Route path="/users" element={<UsersPage />} />
       <Route path="/settings" element={<SettingsPage />} />

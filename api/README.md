@@ -94,9 +94,10 @@ cd api && pnpm dev
 
 This starts a local Express server on **http://localhost:3001** that:
 - Emulates API Gateway and Lambda environment
-- Provides mock JWT authentication
+- Provides mock JWT authentication for testing
 - Routes requests to actual Lambda function handlers
 - Connects to local DynamoDB (port 8000) and LocalStack (port 4566)
+- Supports demo user authentication for frontend integration
 
 ### Test API
 
@@ -150,8 +151,10 @@ Jest is configured with coverage thresholds:
 - `GET /org/settings` - Get org settings (admin, coadmin)
 - `PATCH /org/settings` - Update org settings (admin, coadmin)
 - `GET /org/users` - List org users (admin, coadmin)
-- `POST /org/users/invite` - Invite new user (admin)
-- `PATCH /org/users/{userId}` - Update user (admin)
+- `POST /org/users/invite` - Invite new user (**admin only**)
+- `PATCH /org/users/{userId}` - Update user (**admin only**)
+
+**Note**: Co-admins can view all users but cannot invite new users or modify existing users. This enforces the principle that co-admins have operational access but not administrative privileges.
 
 ### Loads
 
@@ -194,9 +197,16 @@ requireRole(authContext, ['admin', 'coadmin']);
 
 Available roles:
 - `platformAdmin` - Platform-level access
-- `admin` - Full org access
-- `coadmin` - Org access except some settings
-- `driver` - Limited to assigned loads
+- `admin` - Full org access including user management
+- `coadmin` - Org access for operations (loads, viewing users) but not user administration
+- `driver` - Limited to assigned loads only
+
+**Co-Admin Restrictions:**
+- Can view all organizational data and users
+- Can manage loads and drivers operational tasks
+- **Cannot** invite new users (`POST /org/users/invite`)
+- **Cannot** modify user accounts (`PATCH /org/users/{userId}`)
+- **Cannot** access organization-level administrative settings
 
 ## Deployment
 

@@ -1,242 +1,334 @@
 import { useUser } from '../hooks/useUser';
-import { getLoadsByDriver, Load } from '../data/mockData';
+import { loadsApi } from '../lib/api';
 import { Navigation } from '../components/Navigation';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+
+interface Load {
+  loadId: string;
+  status: 'PENDING' | 'ASSIGNED' | 'EN_ROUTE' | 'DELIVERED' | 'COMPLETED';
+  createdAt: string;
+  updatedAt: string;
+  assignedDriverId?: string;
+  serviceAddress: {
+    name: string;
+    street: string;
+    city: string;
+    state: string;
+    zip: string;
+    contact: string;
+    phone: string;
+    email?: string;
+  };
+  items: Array<{
+    type: string;
+    qty: number;
+  }>;
+  notes?: string;
+  unloadLocation?: string;
+  shipVia?: string;
+}
 
 export default function DriverLoadsPage() {
   const { currentUser } = useUser();
+  const navigate = useNavigate();
   const [myLoads, setMyLoads] = useState<Load[]>([]);
-  const [selectedLoad, setSelectedLoad] = useState<Load | null>(null);
-  const [showDetails, setShowDetails] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [filters, setFilters] = useState({
+    dateFrom: '',
+    dateTo: '',
+    status: ''
+  });
 
-  // Initialize loads on component mount
-  useEffect(() => {
-    if (currentUser) {
-      setMyLoads(getLoadsByDriver(currentUser.userId));
-    }
-  }, [currentUser]);
-  
+  // Redirect non-drivers
   if (!currentUser || currentUser.role !== 'driver') {
     return <Navigate to="/login" replace />;
   }
 
-  // Handle URL parameters for filtering
-  const urlParams = new URLSearchParams(window.location.search);
-  const statusFilter = urlParams.get('status');
-  
-  let filteredLoads = myLoads;
-  if (statusFilter === 'pending') {
-    filteredLoads = myLoads.filter(load => ['PENDING', 'ASSIGNED', 'EN_ROUTE'].includes(load.status));
-  } else if (statusFilter === 'completed') {
-    filteredLoads = myLoads.filter(load => ['DELIVERED', 'COMPLETED'].includes(load.status));
+  // Load driver's loads on mount
+  useEffect(() => {
+    loadMyLoads();
+  }, [filters]);
+
+  const loadMyLoads = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      
+      const apiFilters: any = {};
+      if (filters.dateFrom) apiFilters.from = filters.dateFrom;
+      if (filters.dateTo) apiFilters.to = filters.dateTo;
+      
+      const response = await loadsApi.myLoads(apiFilters);
+      let loads = response.loads || [];
+      
+      // Apply status filter client-side
+      if (filters.status) {
+        loads = loads.filter(load => load.status === filters.status);
+      }
+      
+      setMyLoads(loads);
+    } catch (err) {
+      console.error('Failed to load my loads:', err);
+      setError(err instanceof Error ? err.message : 'Failed to load loads');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getStatusColor = (status: Load['status']) => {
+    switch (status) {
+      case 'PENDING': return 'bg-gray-100 text-gray-800';
+      case 'ASSIGNED': return 'bg-blue-100 text-blue-800';
+      case 'EN_ROUTE': return 'bg-yellow-100 text-yellow-800';
+      case 'DELIVERED': return 'bg-orange-100 text-orange-800';
+      case 'COMPLETED': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getActionButton = (load: Load) => {
+    switch (load.status) {
+      case 'ASSIGNED':
+        return (
+          <button 
+            onClick={() => navigate(`/loads/${load.loadId}`)}
+            className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700"
+          >
+            Start Route
+          </button>
+        );
+      
+      case 'EN_ROUTE':
+        return (
+          <button 
+            onClick={() => navigate(`/loads/${load.loadId}`)}
+            className="bg-green-600 text-white px-4 py-2 rounded-md text-sm hover:bg-green-700"
+          >
+            Mark Delivered
+          </button>
+        );
+      
+      case 'DELIVERED':
+        return (
+          <button 
+            onClick={() => navigate(`/loads/${load.loadId}`)}
+            className="bg-purple-600 text-white px-4 py-2 rounded-md text-sm hover:bg-purple-700"
+          >
+            Get Signature
+          </button>
+        );
+      
+      default:
+        return (
+          <button 
+            onClick={() => navigate(`/loads/${load.loadId}`)}
+            className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md text-sm hover:bg-gray-300"
+          >
+            View Details
+          </button>
+        );
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <Navigation />
+        <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+          <div className="px-4 py-6 sm:px-0">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-1/4 mb-6"></div>
+              <div className="space-y-4">
+                {[...Array(3)].map((_, i) => (
+                  <div key={i} className="h-32 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
   }
-
-  const handleStartRoute = (loadId: string) => {
-    setMyLoads(prev => prev.map(load => 
-      load.id === loadId 
-        ? { ...load, status: 'EN_ROUTE' as const }
-        : load
-    ));
-  };
-
-  const handleMarkDelivered = (loadId: string) => {
-    setMyLoads(prev => prev.map(load => 
-      load.id === loadId 
-        ? { ...load, status: 'DELIVERED' as const, deliveredAt: new Date().toISOString() }
-        : load
-    ));
-  };
-
-  const handleGetSignature = (loadId: string) => {
-    // For now, just mark as completed - in real app would open signature capture
-    setMyLoads(prev => prev.map(load => 
-      load.id === loadId 
-        ? { ...load, status: 'COMPLETED' as const, signatureUrl: 'mock-signature-url' }
-        : load
-    ));
-  };
-
-  const handleViewDetails = (load: Load) => {
-    setSelectedLoad(load);
-    setShowDetails(true);
-  };
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navigation />
       <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
         <div className="px-4 py-6 sm:px-0">
-          <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-6">
-            My Loads {statusFilter && `(${statusFilter})`}
-          </h2>
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
+              My Loads ({myLoads.length})
+            </h2>
+            <button
+              onClick={loadMyLoads}
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+            >
+              Refresh
+            </button>
+          </div>
+
+          {/* Error Display */}
+          {error && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4 mb-6">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <span className="text-red-400">⚠️</span>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-800 dark:text-red-200">Error</h3>
+                  <div className="mt-2 text-sm text-red-700 dark:text-red-300">{error}</div>
+                  <div className="mt-4">
+                    <button
+                      onClick={() => setError(null)}
+                      className="text-sm bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200 px-3 py-1 rounded"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Filters */}
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 mb-6">
+            <h3 className="text-sm font-medium text-gray-900 dark:text-white mb-3">Filters</h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">Status</label>
+                <select
+                  value={filters.status}
+                  onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                >
+                  <option value="">All Statuses</option>
+                  <option value="ASSIGNED">Assigned</option>
+                  <option value="EN_ROUTE">En Route</option>
+                  <option value="DELIVERED">Delivered</option>
+                  <option value="COMPLETED">Completed</option>
+                </select>
+              </div>
+              
+              <div>
+                <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">From Date</label>
+                <input
+                  type="date"
+                  value={filters.dateFrom}
+                  onChange={(e) => setFilters({ ...filters, dateFrom: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm text-gray-700 dark:text-gray-300 mb-1">To Date</label>
+                <input
+                  type="date"
+                  value={filters.dateTo}
+                  onChange={(e) => setFilters({ ...filters, dateTo: e.target.value })}
+                  className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                />
+              </div>
+            </div>
+            
+            <div className="flex justify-end mt-3">
+              <button
+                onClick={() => setFilters({ dateFrom: '', dateTo: '', status: '' })}
+                className="bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 px-3 py-1 rounded text-sm hover:bg-gray-400 dark:hover:bg-gray-500"
+              >
+                Clear Filters
+              </button>
+            </div>
+          </div>
 
           {/* Workflow Help */}
           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-md p-4 mb-6">
             <h3 className="text-sm font-medium text-blue-800 dark:text-blue-200 mb-2">Load Workflow</h3>
             <div className="text-xs text-blue-700 dark:text-blue-300 space-y-1">
-              <p><strong>PENDING:</strong> Load created by admin, waiting for assignment</p>
-              <p><strong>ASSIGNED:</strong> Load assigned to you - click "Start Route" to begin</p>
-              <p><strong>EN ROUTE:</strong> You're traveling to pickup/delivery - click "Mark Delivered" when complete</p>
-              <p><strong>DELIVERED:</strong> Load delivered - click "Get Signature" to finalize</p>
+              <p><strong>ASSIGNED:</strong> Load assigned to you - click to start route</p>
+              <p><strong>EN ROUTE:</strong> You're traveling to pickup/delivery - click to mark delivered</p>
+              <p><strong>DELIVERED:</strong> Load delivered - click to capture signature</p>
               <p><strong>COMPLETED:</strong> Load fully completed with signature</p>
             </div>
           </div>
 
-          <div className="space-y-4">
-            {filteredLoads.map((load) => (
-              <div key={load.id} className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
-                <div className="flex justify-between items-start mb-4">
-                  <div>
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{load.id}</h3>
-                    <p className="text-gray-600 dark:text-gray-400">{load.serviceAddress.name}</p>
+          {/* Loads List */}
+          {myLoads.length === 0 ? (
+            <div className="text-center py-12">
+              <div className="text-gray-400 text-6xl mb-4">🚛</div>
+              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No loads found</h3>
+              <p className="text-gray-500 dark:text-gray-400">
+                {Object.values(filters).some(v => v) 
+                  ? 'Try adjusting your filters.' 
+                  : 'You have no loads assigned yet.'
+                }
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {myLoads.map((load) => (
+                <div 
+                  key={load.loadId} 
+                  className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => navigate(`/loads/${load.loadId}`)}
+                >
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">{load.loadId}</h3>
+                      <p className="text-gray-600 dark:text-gray-400">{load.serviceAddress.name}</p>
+                    </div>
+                    <span className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(load.status)}`}>
+                      {load.status.replace('_', ' ')}
+                    </span>
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    load.status === 'ASSIGNED' ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200' :
-                    load.status === 'EN_ROUTE' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-800 dark:text-yellow-200' :
-                    load.status === 'DELIVERED' ? 'bg-orange-100 dark:bg-orange-900 text-orange-800 dark:text-orange-200' :
-                    load.status === 'COMPLETED' ? 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200' :
-                    'bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200'
-                  }`}>
-                    {load.status.replace('_', ' ')}
-                  </span>
-                </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Address</p>
-                    <p className="text-sm dark:text-gray-300">
-                      {load.serviceAddress.street}<br />
-                      {load.serviceAddress.city}, {load.serviceAddress.state} {load.serviceAddress.zip}
-                    </p>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Address</p>
+                      <p className="text-sm dark:text-gray-300">
+                        {load.serviceAddress.street}<br />
+                        {load.serviceAddress.city}, {load.serviceAddress.state} {load.serviceAddress.zip}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">Contact</p>
+                      <p className="text-sm dark:text-gray-300">
+                        {load.serviceAddress.contact}<br />
+                        <a 
+                          href={`tel:${load.serviceAddress.phone}`} 
+                          className="text-blue-600 dark:text-blue-400 hover:underline"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {load.serviceAddress.phone}
+                        </a>
+                      </p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm text-gray-500 dark:text-gray-400">Contact</p>
-                    <p className="text-sm dark:text-gray-300">
-                      {load.serviceAddress.contact}<br />
-                      {load.serviceAddress.phone}
-                    </p>
-                  </div>
-                </div>
 
-                <div className="flex space-x-2">
-                  {load.status === 'ASSIGNED' && (
-                    <button 
-                      onClick={() => handleStartRoute(load.id)}
-                      className="bg-blue-600 text-white px-4 py-2 rounded-md text-sm hover:bg-blue-700"
-                    >
-                      Start Route
-                    </button>
+                  <div className="flex justify-between items-center">
+                    <div className="text-sm text-gray-500 dark:text-gray-400">
+                      📦 {load.items.reduce((sum, item) => sum + item.qty, 0)} items
+                      {load.shipVia && ` • 🚚 ${load.shipVia}`}
+                    </div>
+                    <div onClick={(e) => e.stopPropagation()}>
+                      {getActionButton(load)}
+                    </div>
+                  </div>
+
+                  {load.notes && (
+                    <div className="mt-3 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded">
+                      <p className="text-sm text-gray-700 dark:text-gray-300">
+                        <strong>Notes:</strong> {load.notes}
+                      </p>
+                    </div>
                   )}
-                  {load.status === 'EN_ROUTE' && (
-                    <button 
-                      onClick={() => handleMarkDelivered(load.id)}
-                      className="bg-green-600 text-white px-4 py-2 rounded-md text-sm hover:bg-green-700"
-                    >
-                      Mark Delivered
-                    </button>
-                  )}
-                  {load.status === 'DELIVERED' && (
-                    <button 
-                      onClick={() => handleGetSignature(load.id)}
-                      className="bg-purple-600 text-white px-4 py-2 rounded-md text-sm hover:bg-purple-700"
-                    >
-                      Get Signature
-                    </button>
-                  )}
-                  <button 
-                    onClick={() => handleViewDetails(load)}
-                    className="bg-gray-200 dark:bg-gray-600 text-gray-800 dark:text-gray-200 px-4 py-2 rounded-md text-sm hover:bg-gray-300 dark:hover:bg-gray-500"
-                  >
-                    View Details
-                  </button>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </main>
-
-      {/* Load Details Modal */}
-      {showDetails && selectedLoad && (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-          <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white dark:bg-gray-800 dark:border-gray-700">
-            <div className="mt-3">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-medium text-gray-900 dark:text-white">Load Details</h3>
-                <button
-                  onClick={() => setShowDetails(false)}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl"
-                >
-                  ×
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                <div>
-                  <h4 className="font-semibold text-gray-900 dark:text-white">{selectedLoad.id}</h4>
-                  <p className="text-sm text-gray-600 dark:text-gray-400">
-                    Status: <span className={`font-medium ${
-                      selectedLoad.status === 'ASSIGNED' ? 'text-blue-600' :
-                      selectedLoad.status === 'EN_ROUTE' ? 'text-yellow-600' :
-                      selectedLoad.status === 'DELIVERED' ? 'text-orange-600' :
-                      selectedLoad.status === 'COMPLETED' ? 'text-green-600' :
-                      'text-gray-600'
-                    }`}>
-                      {selectedLoad.status.replace('_', ' ')}
-                    </span>
-                  </p>
-                </div>
-
-                <div>
-                  <h5 className="font-medium text-gray-900 dark:text-white mb-2">Service Address</h5>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">
-                    <p className="font-medium">{selectedLoad.serviceAddress.name}</p>
-                    <p>{selectedLoad.serviceAddress.street}</p>
-                    <p>{selectedLoad.serviceAddress.city}, {selectedLoad.serviceAddress.state} {selectedLoad.serviceAddress.zip}</p>
-                  </div>
-                </div>
-
-                <div>
-                  <h5 className="font-medium text-gray-900 dark:text-white mb-2">Contact Information</h5>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">
-                    <p>Contact: {selectedLoad.serviceAddress.contact}</p>
-                    <p>Phone: {selectedLoad.serviceAddress.phone}</p>
-                  </div>
-                </div>
-
-                <div>
-                  <h5 className="font-medium text-gray-900 dark:text-white mb-2">Items</h5>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">
-                    {selectedLoad.items.map((item, index) => (
-                      <p key={index}>{item.qty}x {item.type}</p>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h5 className="font-medium text-gray-900 dark:text-white mb-2">Timeline</h5>
-                  <div className="text-sm text-gray-600 dark:text-gray-300">
-                    <p>Created: {new Date(selectedLoad.createdAt).toLocaleString()}</p>
-                    {selectedLoad.deliveredAt && (
-                      <p>Delivered: {new Date(selectedLoad.deliveredAt).toLocaleString()}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex justify-end pt-4 border-t dark:border-gray-700 mt-6">
-                <button
-                  onClick={() => setShowDetails(false)}
-                  className="bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-md hover:bg-gray-400 dark:hover:bg-gray-500"
-                >
-                  Close
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

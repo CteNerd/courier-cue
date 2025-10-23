@@ -14,12 +14,21 @@ import CustomFieldsSettings from '../components/settings/CustomFieldsSettings';
 
 export default function SettingsPage() {
   const { currentUser } = useUser();
-  const { settings, hasChanges, saveSettings, updateNestedSettings } = useSettings();
+  const { 
+    settings, 
+    hasChanges, 
+    saveSettings, 
+    updateNestedSettings, 
+    loading, 
+    saving, 
+    error 
+  } = useSettings();
   const [activeTab, setActiveTab] = useState<SettingsTab>('company');
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   if (!currentUser) return null;
 
-  // Permission check - only admins and co-admins can access settings
+  // Permission check - only admins and coadmins can access settings
   if (currentUser.role === 'driver') {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 flex items-center justify-center">
@@ -30,6 +39,15 @@ export default function SettingsPage() {
       </div>
     );
   }
+
+  const handleSaveSettings = async () => {
+    try {
+      setSaveError(null);
+      await saveSettings();
+    } catch (err) {
+      setSaveError(err instanceof Error ? err.message : 'Failed to save settings');
+    }
+  };
 
   const renderTabContent = () => {
     const commonProps = { settings, setSettings: () => {}, setHasChanges: () => {}, updateNestedSettings };
@@ -54,6 +72,28 @@ export default function SettingsPage() {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+        <Navigation />
+        <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+          <div className="px-4 py-6 sm:px-0">
+            <div className="animate-pulse">
+              <div className="h-8 bg-gray-300 dark:bg-gray-600 rounded w-1/4 mb-6"></div>
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-6">
+                <div className="space-y-4">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="h-12 bg-gray-300 dark:bg-gray-600 rounded"></div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <Navigation />
@@ -69,13 +109,49 @@ export default function SettingsPage() {
             </div>
             {hasChanges && (
               <button
-                onClick={saveSettings}
-                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 text-sm font-medium"
+                onClick={handleSaveSettings}
+                disabled={saving}
+                className="bg-green-600 text-white px-4 py-2 rounded-md hover:bg-green-700 text-sm font-medium disabled:opacity-50 flex items-center"
               >
-                Save Changes
+                {saving ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Saving...
+                  </>
+                ) : (
+                  'Save Changes'
+                )}
               </button>
             )}
           </div>
+
+          {/* Error Display */}
+          {(error || saveError) && (
+            <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-md p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <span className="text-red-400">⚠️</span>
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-800 dark:text-red-200">Error</h3>
+                  <div className="mt-2 text-sm text-red-700 dark:text-red-300">
+                    {error || saveError}
+                  </div>
+                  <div className="mt-4">
+                    <button
+                      onClick={() => setSaveError(null)}
+                      className="text-sm bg-red-100 dark:bg-red-800 text-red-800 dark:text-red-200 px-3 py-1 rounded"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="bg-white dark:bg-gray-800 shadow rounded-lg">
             <div className="px-6 pt-6">

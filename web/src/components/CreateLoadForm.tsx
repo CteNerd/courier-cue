@@ -1,12 +1,21 @@
-import { useUser, DEMO_USERS } from '../hooks/useUser';
 import { useCreateLoadForm } from '../hooks/useCreateLoadForm';
 import { CreateLoadFormProps } from '../types/load';
+import { orgApi } from '../lib/api';
+import { useState, useEffect } from 'react';
 import ServiceAddressForm from './forms/ServiceAddressForm';
 import ItemsManager from './forms/ItemsManager';
 import LoadAssignment from './forms/LoadAssignment';
 
+interface User {
+  id: string;
+  email: string;
+  displayName: string;
+  role: string;
+}
+
 export default function CreateLoadForm({ isOpen, onClose, onSubmit }: CreateLoadFormProps) {
-  const { currentUser } = useUser();
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
   const {
     formData,
     handleAddressChange,
@@ -16,20 +25,60 @@ export default function CreateLoadForm({ isOpen, onClose, onSubmit }: CreateLoad
     handleDriverChange,
     handlePriorityChange,
     handleNotesChange,
-    resetForm,
-    createLoadData
+    resetForm
   } = useCreateLoadForm();
 
-  const drivers = DEMO_USERS.filter(user => user.role === 'driver');
+  const drivers = users.filter(user => user.role === 'driver');
+
+  // Load users when form opens
+  useEffect(() => {
+    if (isOpen) {
+      loadUsers();
+    }
+  }, [isOpen]);
+
+  const loadUsers = async () => {
+    try {
+      const response = await orgApi.listUsers();
+      setUsers(response.users || []);
+    } catch (error) {
+      console.error('Failed to load users:', error);
+    }
+  };
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const loadData = createLoadData(currentUser, drivers);
-    onSubmit(loadData);
-    resetForm();
-    onClose();
+    
+    if (loading) return;
+    
+    setLoading(true);
+    
+    try {
+      // Create load data in API format
+      const loadData = {
+        serviceAddress: formData.serviceAddress,
+        items: formData.items
+          .filter(item => item.description.trim() !== '')
+          .map(item => ({
+            type: item.description,
+            qty: item.qty
+          })),
+        assignedDriverId: formData.assignedDriverId || undefined,
+        notes: formData.notes || undefined,
+        priority: formData.priority,
+        status: formData.assignedDriverId ? 'ASSIGNED' : 'PENDING'
+      };
+
+      await onSubmit(loadData);
+      resetForm();
+      onClose();
+    } catch (error) {
+      console.error('Failed to create load:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -74,15 +123,17 @@ export default function CreateLoadForm({ isOpen, onClose, onSubmit }: CreateLoad
               <button
                 type="button"
                 onClick={onClose}
-                className="bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-md hover:bg-gray-400 dark:hover:bg-gray-500"
+                disabled={loading}
+                className="bg-gray-300 dark:bg-gray-600 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-md hover:bg-gray-400 dark:hover:bg-gray-500 disabled:opacity-50"
               >
                 Cancel
               </button>
               <button
                 type="submit"
-                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700"
+                disabled={loading}
+                className="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Create Load
+                {loading ? 'Creating...' : 'Create Load'}
               </button>
             </div>
           </form>

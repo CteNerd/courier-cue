@@ -390,33 +390,710 @@ Resources:
           - !Ref UserPoolClient
         Issuer: !Sub 'https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}'
 
-  # Lambda Functions (placeholder - will be implemented)
-  OrgSettingsFunction:
+  # API Gateway Routes and Integrations
+  # Organization Routes
+  OrgGetSettingsRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'GET /org/settings'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${OrgGetSettingsIntegration}'
+
+  OrgGetSettingsIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt OrgGetSettingsFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  OrgGetSettingsFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref OrgGetSettingsFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  OrgUpdateSettingsRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'PATCH /org/settings'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${OrgUpdateSettingsIntegration}'
+
+  OrgUpdateSettingsIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt OrgUpdateSettingsFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  OrgUpdateSettingsFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref OrgUpdateSettingsFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  OrgListUsersRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'GET /org/users'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${OrgListUsersIntegration}'
+
+  OrgListUsersIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt OrgListUsersFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  OrgListUsersFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref OrgListUsersFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  OrgInviteUserRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'POST /org/users/invite'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${OrgInviteUserIntegration}'
+
+  OrgInviteUserIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt OrgInviteUserFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  OrgInviteUserFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref OrgInviteUserFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  # Load Routes
+  LoadsCreateRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'POST /loads'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${LoadsCreateIntegration}'
+
+  LoadsCreateIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt LoadsCreateFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  LoadsCreateFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LoadsCreateFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  LoadsListRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'GET /loads'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${LoadsListIntegration}'
+
+  LoadsListIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt LoadsListFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  LoadsListFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LoadsListFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  LoadsGetRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'GET /loads/{id}'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${LoadsGetIntegration}'
+
+  LoadsGetIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt LoadsGetFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  LoadsGetFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LoadsGetFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  LoadsUpdateRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'PATCH /loads/{id}'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${LoadsUpdateIntegration}'
+
+  LoadsUpdateIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt LoadsUpdateFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  LoadsUpdateFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LoadsUpdateFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  LoadsMyRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'GET /loads/my'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${LoadsMyIntegration}'
+
+  LoadsMyIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt LoadsMyFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  LoadsMyFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LoadsMyFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  LoadsUpdateStatusRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'POST /loads/{id}/status'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${LoadsUpdateStatusIntegration}'
+
+  LoadsUpdateStatusIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt LoadsUpdateStatusFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  LoadsUpdateStatusFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LoadsUpdateStatusFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  LoadsSignaturePresignRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'POST /loads/{id}/signature/shipper/presign'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${LoadsSignaturePresignIntegration}'
+
+  LoadsSignaturePresignIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt LoadsSignaturePresignFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  LoadsSignaturePresignFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LoadsSignaturePresignFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  LoadsSignatureConfirmRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'POST /loads/{id}/signature/shipper/confirm'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${LoadsSignatureConfirmIntegration}'
+
+  LoadsSignatureConfirmIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt LoadsSignatureConfirmFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  LoadsSignatureConfirmFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LoadsSignatureConfirmFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  LoadsGetReceiptRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'GET /loads/{id}/receipt.pdf'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${LoadsGetReceiptIntegration}'
+
+  LoadsGetReceiptIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt LoadsGetReceiptFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  LoadsGetReceiptFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LoadsGetReceiptFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  LoadsSendEmailRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'POST /loads/{id}/email'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${LoadsSendEmailIntegration}'
+
+  LoadsSendEmailIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt LoadsSendEmailFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  LoadsSendEmailFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref LoadsSendEmailFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  # Deployment Bucket for Lambda code
+  DeploymentBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'couriercue-${Env}-deployment'
+      VersioningConfiguration:
+        Status: Enabled
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldVersions
+            Status: Enabled
+            NoncurrentVersionExpirationInDays: 7
+
+  # Lambda Functions
+  # Organization Functions
+  OrgGetSettingsFunction:
     Type: AWS::Lambda::Function
     Properties:
-      FunctionName: !Sub 'couriercue-${Env}-org-settings'
+      FunctionName: !Sub 'couriercue-${Env}-org-get-settings'
       Runtime: nodejs20.x
-      Handler: index.handler
+      Handler: org/get-settings.handler
       Role: !GetAtt LambdaExecutionRole.Arn
       Code:
-        ZipFile: |
-          exports.handler = async (event) => {
-            return {
-              statusCode: 200,
-              body: JSON.stringify({ message: 'Not implemented yet' })
-            };
-          };
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
       Environment:
         Variables:
           TABLE_NAME: !Ref MainTable
           ASSETS_BUCKET: !Ref AssetsBucket
           ENV: !Ref Env
           REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
 
-  OrgSettingsFunctionLogGroup:
+  OrgUpdateSettingsFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-org-update-settings'
+      Runtime: nodejs20.x
+      Handler: org/update-settings.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  OrgListUsersFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-org-list-users'
+      Runtime: nodejs20.x
+      Handler: org/list-users.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  OrgInviteUserFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-org-invite-user'
+      Runtime: nodejs20.x
+      Handler: org/invite-user.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  # Load Functions
+  LoadsCreateFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-loads-create'
+      Runtime: nodejs20.x
+      Handler: loads/create-load.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  LoadsListFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-loads-list'
+      Runtime: nodejs20.x
+      Handler: loads/list-loads.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  LoadsGetFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-loads-get'
+      Runtime: nodejs20.x
+      Handler: loads/get-load.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  LoadsUpdateFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-loads-update'
+      Runtime: nodejs20.x
+      Handler: loads/update-load.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  LoadsMyFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-loads-my'
+      Runtime: nodejs20.x
+      Handler: loads/my-loads.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  LoadsUpdateStatusFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-loads-update-status'
+      Runtime: nodejs20.x
+      Handler: loads/update-status.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  LoadsSignaturePresignFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-loads-signature-presign'
+      Runtime: nodejs20.x
+      Handler: loads/signature-presign.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  LoadsSignatureConfirmFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-loads-signature-confirm'
+      Runtime: nodejs20.x
+      Handler: loads/signature-confirm.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  LoadsGetReceiptFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-loads-get-receipt'
+      Runtime: nodejs20.x
+      Handler: loads/get-receipt.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  LoadsSendEmailFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-loads-send-email'
+      Runtime: nodejs20.x
+      Handler: loads/send-email.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  # Log Groups for all functions
+  OrgGetSettingsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Sub '/aws/lambda/${OrgSettingsFunction}'
+      LogGroupName: !Sub '/aws/lambda/${OrgGetSettingsFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  OrgUpdateSettingsFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${OrgUpdateSettingsFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  OrgListUsersFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${OrgListUsersFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  OrgInviteUserFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${OrgInviteUserFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  LoadsCreateFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${LoadsCreateFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  LoadsListFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${LoadsListFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  LoadsGetFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${LoadsGetFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  LoadsUpdateFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${LoadsUpdateFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  LoadsMyFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${LoadsMyFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  LoadsUpdateStatusFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${LoadsUpdateStatusFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  LoadsSignaturePresignFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${LoadsSignaturePresignFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  LoadsSignatureConfirmFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${LoadsSignatureConfirmFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  LoadsGetReceiptFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${LoadsGetReceiptFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  LoadsSendEmailFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${LoadsSendEmailFunction}'
       RetentionInDays: !If [IsProd, 30, 7]
 
   # API Gateway Stage

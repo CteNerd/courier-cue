@@ -1,6 +1,8 @@
 import { useUser } from '../hooks/useUser';
 import { DarkModeToggle } from './DarkModeToggle';
 
+const USE_MOCK_API = import.meta.env.VITE_USE_MOCK_API === 'true' || false;
+
 export function Navigation() {
   const { currentUser, logout } = useUser();
 
@@ -13,7 +15,7 @@ export function Navigation() {
     : [
         { name: 'Dashboard', href: '/dashboard' },
         { name: 'Loads', href: '/loads' },
-        ...(currentUser.role === 'admin' || currentUser.role === 'co-admin' ? [{ name: 'Users', href: '/users' }] : []),
+        ...(currentUser.role === 'admin' || currentUser.role === 'coadmin' ? [{ name: 'Users', href: '/users' }] : []),
         { name: 'Settings', href: '/settings' },
       ];
 
@@ -39,6 +41,14 @@ export function Navigation() {
             <span className="text-sm text-gray-700 dark:text-gray-300">{currentUser.displayName}</span>
             <span className="text-xs bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200 px-2 py-1 rounded-full">
               {currentUser.role}
+            </span>
+            {/* API Status Indicator */}
+            <span className={`text-xs px-2 py-1 rounded-full ${
+              USE_MOCK_API 
+                ? 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300' 
+                : 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+            }`}>
+              {USE_MOCK_API ? '🔧 Mock API' : '🚀 Real API'}
             </span>
             <DarkModeToggle />
             <button
