@@ -12,17 +12,30 @@ Multi-tenant SaaS platform for digitizing delivery slips and driver workflow man
 - **Co-Admin permissions**: Can view all users and manage drivers, but cannot invite users or manage other admins
 
 ### 📦 **Load Management**
-- **Load creation and assignment** to drivers
+- **Load creation and assignment** to drivers with trailer/dock selection
 - **Real-time status tracking** (Assigned → En Route → Delivered → Completed)
 - **Digital signature capture** with geolocation
 - **PDF receipt generation** and email delivery
 - **Priority-based load management**
+- **Trailer tracking** with compliance monitoring
+- **Dock and dock yard management** with type selection
+
+### 🚛 **Trailer & Dock Management**
+- **Trailer management** with full CRUD operations
+- **Compliance tracking** for registration and inspection dates
+- **Status management** (Active, Inactive, In Repair)
+- **Current location tracking** via dock assignment
+- **Dock management** with type selection (flatbed, drop-in)
+- **Dock yard organization** with address management
+- **Real-time compliance calculation** based on current date
 
 ### 🎯 **User Experience**
+- **Public marketing pages** with business-focused landing page and about section
 - **Dark/Light mode toggle** with system preference detection
 - **Responsive design** optimized for desktop and mobile
 - **Interactive dashboard** with load statistics
 - **Demo environment** with pre-configured test users
+- **Seamless authentication** flow from public to private pages
 
 ### 🛠 **Developer Experience**
 - **TypeScript** throughout the entire stack
@@ -98,7 +111,9 @@ pnpm dev:web
 
 6. **Access the application**
 
-- Web app: http://localhost:5173
+- **Web app**: http://localhost:5173 (starts at public homepage)
+- **Login**: http://localhost:5173/login
+- **About**: http://localhost:5173/about
 - API server: http://localhost:3001
 - API health check: http://localhost:3001/health
 - MailHog UI: http://localhost:8025
@@ -137,16 +152,23 @@ Each role demonstrates different permission levels and UI experiences. The demo 
 couriercue/
 ├── infra/              # CloudFormation infrastructure
 ├── api/                # Lambda backend functions
-│   ├── src/functions/  # API handlers
+│   ├── src/functions/  # API handlers (loads, trailers, docks, org, etc.)
 │   ├── src/lib/        # Shared libraries
 │   └── src/local/      # Local development server
 ├── web/                # React frontend
-│   ├── src/pages/      # Page components
+│   ├── src/pages/      # Page components (public + private)
+│   │   ├── HomePage.tsx           # Public landing page
+│   │   ├── AboutPage.tsx          # Public about page
+│   │   ├── DashboardPage.tsx      # Private dashboard
+│   │   └── ...                    # Other private pages
 │   ├── src/components/ # UI components
+│   │   ├── Navigation.tsx         # Authenticated nav
+│   │   ├── PublicNavigation.tsx   # Public nav
+│   │   └── ...
 │   └── src/lib/        # API client, utilities
 ├── docker/             # Local development setup
 │   ├── compose.local.yml
-│   └── seed.sh
+│   └── seed.sh         # Includes trailers/docks/dockyards
 └── .github/workflows/  # CI/CD pipelines
 ```
 
@@ -275,7 +297,7 @@ VITE_LOCAL_DEV=true
 - `VITE_USE_MOCK_API=true`: Uses mock API with comprehensive demo data
 - `VITE_USE_MOCK_API=false`: Connects to real API server (requires backend running)
 
-## API Endpoints
+### API Endpoints
 
 ### Organization
 - `GET /org/settings` - Get org settings
@@ -293,6 +315,21 @@ VITE_LOCAL_DEV=true
 - `POST /loads/{id}/signature/shipper/confirm` - Confirm signature
 - `GET /loads/{id}/receipt.pdf` - Get PDF receipt
 - `POST /loads/{id}/email` - Send receipt email
+
+### Trailers
+- `GET /trailers` - List trailers
+- `POST /trailers` - Create trailer
+- `PATCH /trailers/{id}` - Update trailer
+
+### Docks
+- `GET /docks` - List docks
+- `POST /docks` - Create dock
+- `PATCH /docks/{id}` - Update dock
+
+### Dock Yards
+- `GET /dockyards` - List dock yards
+- `POST /dockyards` - Create dock yard
+- `PATCH /dockyards/{id}` - Update dock yard
 
 See [api/README.md](api/README.md) for complete API documentation.
 
@@ -346,6 +383,14 @@ See [api/README.md](api/README.md) for complete API documentation.
 - [x] Dark/light theme toggle
 - [x] Comprehensive testing setup
 - [x] API status indicator in navigation
+- [x] Trailer management system with compliance tracking
+- [x] Dock and dock yard management
+- [x] Enhanced load creation with trailer/dock selection
+- [x] Real-time compliance calculation for trailers
+- [x] Backend seed data for trailers, docks, and dock yards
+- [x] Public marketing pages (Home + About)
+- [x] Public navigation with seamless auth flow
+- [x] Business-focused landing page with CTAs
 - [ ] Signature capture component
 - [ ] PDF receipt generation
 - [ ] Email templates and delivery

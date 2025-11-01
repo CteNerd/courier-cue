@@ -416,7 +416,10 @@ export default function LoadsPage() {
               <ul className="divide-y divide-gray-200 dark:divide-gray-700">
                 {loads.map((load) => (
                   <li key={load.loadId}>
-                    <div className="px-4 py-4 sm:px-6 hover:bg-gray-50 dark:hover:bg-gray-700">
+                    <div 
+                      className="px-4 py-4 sm:px-6 hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer"
+                      onClick={() => window.location.href = `/loads/${load.loadId}`}
+                    >
                       <div className="flex items-center justify-between">
                         <div className="flex-1">
                           <div className="flex items-center justify-between">
@@ -449,7 +452,10 @@ export default function LoadsPage() {
                               <div className="flex space-x-2 ml-8">
                                 {load.status === 'PENDING' && (
                                   <button 
-                                    onClick={() => openAssignModal(load)}
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      openAssignModal(load);
+                                    }}
                                     className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded text-xs"
                                   >
                                     Assign Driver
@@ -460,9 +466,10 @@ export default function LoadsPage() {
                                     href={loadsApi.getReceipt(load.loadId)}
                                     target="_blank"
                                     rel="noopener noreferrer"
+                                    onClick={(e) => e.stopPropagation()}
                                     className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs"
                                   >
-                                    View Receipt
+                                    Receipt
                                   </a>
                                 )}
                               </div>

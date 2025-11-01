@@ -48,6 +48,10 @@ export const createLoadSchema = z.object({
   unloadLocation: z.string().optional(),
   shipVia: z.string().optional(),
   trailer: trailerSchema.optional(),
+  trailerId: z.string().optional(),
+  trailerLocationId: z.string().optional(),
+  dockYardId: z.string().optional(),
+  manifest: z.array(z.string()).optional(),
 });
 
 export const updateLoadSchema = z.object({
@@ -60,6 +64,10 @@ export const updateLoadSchema = z.object({
   trailer: trailerSchema.optional(),
   assignedDriverId: z.string().optional(),
   status: loadStatus.optional(),
+  trailerId: z.string().optional(),
+  trailerLocationId: z.string().optional(),
+  dockYardId: z.string().optional(),
+  manifest: z.array(z.string()).optional(),
 });
 
 export const statusUpdateSchema = z.object({
@@ -139,6 +147,57 @@ export const loadsQuerySchema = z.object({
   from: z.string().optional(), // ISO date
   to: z.string().optional(), // ISO date
   q: z.string().optional(), // free text search
+});
+
+// Trailer schemas
+export const trailerStatus = z.enum(['ACTIVE', 'INACTIVE', 'IN_REPAIR']);
+
+export const createTrailerSchema = z.object({
+  trailerNumber: z.string().min(1),
+  currentDockId: z.string().optional(),
+  registrationExpiresAt: z.string().datetime().optional(),
+  isRegistrationCurrent: z.boolean().default(true),
+  inspectionExpiresAt: z.string().datetime().optional(),
+  isInspectionCurrent: z.boolean().default(true),
+  status: trailerStatus.default('ACTIVE'),
+});
+
+export const updateTrailerSchema = z.object({
+  trailerNumber: z.string().min(1).optional(),
+  currentDockId: z.string().optional(),
+  registrationExpiresAt: z.string().datetime().optional(),
+  isRegistrationCurrent: z.boolean().optional(),
+  inspectionExpiresAt: z.string().datetime().optional(),
+  isInspectionCurrent: z.boolean().optional(),
+  status: trailerStatus.optional(),
+});
+
+// Dock Yard schemas
+export const createDockYardSchema = z.object({
+  name: z.string().min(1),
+  address: addressSchema.optional(),
+});
+
+export const updateDockYardSchema = z.object({
+  name: z.string().min(1).optional(),
+  address: addressSchema.optional(),
+});
+
+// Dock schemas
+export const dockType = z.enum(['flatbed', 'drop-in']);
+
+export const createDockSchema = z.object({
+  name: z.string().min(1),
+  dockYardId: z.string().min(1),
+  dockType: dockType,
+  notes: z.string().optional(),
+});
+
+export const updateDockSchema = z.object({
+  name: z.string().min(1).optional(),
+  dockYardId: z.string().optional(),
+  dockType: dockType.optional(),
+  notes: z.string().optional(),
 });
 
 // Helper function to validate request body

@@ -1,5 +1,5 @@
 // Mock API implementation for demo mode
-import { MOCK_LOADS, Load } from '../data/mockData';
+import { MOCK_LOADS, Load, MOCK_TRAILERS, MOCK_DOCKS, MOCK_DOCK_YARDS } from '../data/mockData';
 import { EXTENDED_DEMO_USERS } from '../data/demoUsers';
 import { DEFAULT_SETTINGS } from '../data/defaultSettings';
 
@@ -59,6 +59,7 @@ export const mockLoadsApi = {
     await delay();
     const newLoad = {
       id: `load-${Date.now()}`,
+      loadId: `load-${Date.now()}`,
       ...data,
       status: 'PENDING',
       createdAt: new Date().toISOString(),
@@ -86,6 +87,9 @@ export const mockLoadsApi = {
     
     // Get loads from localStorage or fallback to mock data
     let loads: Load[] = JSON.parse(localStorage.getItem('demoLoads') || 'null') || MOCK_LOADS;
+    
+    // Add loadId if missing (for compatibility)
+    loads = loads.map(load => ({ ...load, loadId: load.loadId || load.id }));
     
     // Filter based on user role and params
     loads = getLoadsByRole(currentUser.role, currentUser.userId, loads);
@@ -135,7 +139,9 @@ export const mockLoadsApi = {
     const currentUser = getCurrentUser();
     if (!currentUser) throw new Error('Not authenticated');
     
-    const loads: Load[] = JSON.parse(localStorage.getItem('demoLoads') || 'null') || MOCK_LOADS;
+    let loads: Load[] = JSON.parse(localStorage.getItem('demoLoads') || 'null') || MOCK_LOADS;
+    // Add loadId if missing (for compatibility)
+    loads = loads.map(load => ({ ...load, loadId: load.loadId || load.id }));
     const myLoads = loads.filter((load: Load) => load.assignedDriverId === currentUser.userId);
     
     return { loads: myLoads };
@@ -202,7 +208,185 @@ export const mockLoadsApi = {
   },
 };
 
+// Mock Trailers API
+const mockTrailersApi = {
+  list: async () => {
+    await delay();
+    // Initialize with mock data if empty
+    let trailers = JSON.parse(localStorage.getItem('demoTrailers') || '[]');
+    if (trailers.length === 0) {
+      trailers = MOCK_TRAILERS;
+      localStorage.setItem('demoTrailers', JSON.stringify(trailers));
+    }
+    // Migrate old data: rename fields to match new interface
+    trailers = trailers.map((trailer: any) => {
+      const migrated: any = { ...trailer };
+      if (trailer.name && !trailer.trailerNumber) {
+        migrated.trailerNumber = trailer.name;
+        delete migrated.name;
+      }
+      if (trailer.primaryDockId && !trailer.currentDockId) {
+        migrated.currentDockId = trailer.primaryDockId;
+        delete migrated.primaryDockId;
+      }
+      if (trailer.registrationExpires && !trailer.registrationExpiresAt) {
+        migrated.registrationExpiresAt = trailer.registrationExpires;
+        delete migrated.registrationExpires;
+      }
+      if (trailer.registrationCurrent !== undefined && trailer.isRegistrationCurrent === undefined) {
+        migrated.isRegistrationCurrent = trailer.registrationCurrent;
+        delete migrated.registrationCurrent;
+      }
+      if (trailer.inspectionExpires && !trailer.inspectionExpiresAt) {
+        migrated.inspectionExpiresAt = trailer.inspectionExpires;
+        delete migrated.inspectionExpires;
+      }
+      if (trailer.inspectionCurrent !== undefined && trailer.isInspectionCurrent === undefined) {
+        migrated.isInspectionCurrent = trailer.inspectionCurrent;
+        delete migrated.inspectionCurrent;
+      }
+      if (trailer.status === 'MAINTENANCE') {
+        migrated.status = 'IN_REPAIR';
+      }
+      delete migrated.primaryDockName;
+      delete migrated.orgId;
+      return migrated;
+    });
+    localStorage.setItem('demoTrailers', JSON.stringify(trailers));
+    return { trailers };
+  },
+  
+  create: async (data: any) => {
+    await delay();
+    const trailers = JSON.parse(localStorage.getItem('demoTrailers') || '[]');
+    const newTrailer = {
+      ...data,
+      trailerId: `trailer-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    trailers.push(newTrailer);
+    localStorage.setItem('demoTrailers', JSON.stringify(trailers));
+    return newTrailer;
+  },
+  
+  update: async (id: string, data: any) => {
+    await delay();
+    const trailers = JSON.parse(localStorage.getItem('demoTrailers') || '[]');
+    const index = trailers.findIndex((t: any) => t.trailerId === id);
+    if (index !== -1) {
+      trailers[index] = { 
+        ...trailers[index], 
+        ...data, 
+        updatedAt: new Date().toISOString() 
+      };
+      localStorage.setItem('demoTrailers', JSON.stringify(trailers));
+      return trailers[index];
+    }
+    throw new Error('Trailer not found');
+  },
+};
+
+// Mock Docks API
+const mockDocksApi = {
+  list: async () => {
+    await delay();
+    // Initialize with mock data if empty
+    let docks = JSON.parse(localStorage.getItem('demoDocks') || '[]');
+    if (docks.length === 0) {
+      docks = MOCK_DOCKS;
+      localStorage.setItem('demoDocks', JSON.stringify(docks));
+    }
+    // Migrate old data: rename 'type' field to 'dockType'
+    docks = docks.map((dock: any) => {
+      if (dock.type && !dock.dockType) {
+        return { ...dock, dockType: dock.type, type: undefined };
+      }
+      return dock;
+    });
+    localStorage.setItem('demoDocks', JSON.stringify(docks));
+    return { docks };
+  },
+  
+  create: async (data: any) => {
+    await delay();
+    const docks = JSON.parse(localStorage.getItem('demoDocks') || '[]');
+    const newDock = {
+      ...data,
+      dockId: `dock-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    docks.push(newDock);
+    localStorage.setItem('demoDocks', JSON.stringify(docks));
+    return newDock;
+  },
+  
+  update: async (id: string, data: any) => {
+    await delay();
+    const docks = JSON.parse(localStorage.getItem('demoDocks') || '[]');
+    const index = docks.findIndex((d: any) => d.dockId === id);
+    if (index !== -1) {
+      docks[index] = { 
+        ...docks[index], 
+        ...data, 
+        updatedAt: new Date().toISOString() 
+      };
+      localStorage.setItem('demoDocks', JSON.stringify(docks));
+      return docks[index];
+    }
+    throw new Error('Dock not found');
+  },
+};
+
+// Mock DockYards API
+const mockDockYardsApi = {
+  list: async () => {
+    await delay();
+    // Initialize with mock data if empty
+    let dockyards = JSON.parse(localStorage.getItem('demoDockYards') || '[]');
+    if (dockyards.length === 0) {
+      dockyards = MOCK_DOCK_YARDS;
+      localStorage.setItem('demoDockYards', JSON.stringify(dockyards));
+    }
+    return { dockyards };
+  },
+  
+  create: async (data: any) => {
+    await delay();
+    const dockyards = JSON.parse(localStorage.getItem('demoDockYards') || '[]');
+    const newDockYard = {
+      ...data,
+      dockYardId: `dockyard-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+    dockyards.push(newDockYard);
+    localStorage.setItem('demoDockYards', JSON.stringify(dockyards));
+    return newDockYard;
+  },
+  
+  update: async (id: string, data: any) => {
+    await delay();
+    const dockyards = JSON.parse(localStorage.getItem('demoDockYards') || '[]');
+    const index = dockyards.findIndex((dy: any) => dy.dockYardId === id);
+    if (index !== -1) {
+      dockyards[index] = { 
+        ...dockyards[index], 
+        ...data, 
+        updatedAt: new Date().toISOString() 
+      };
+      localStorage.setItem('demoDockYards', JSON.stringify(dockyards));
+      return dockyards[index];
+    }
+    throw new Error('Dock yard not found');
+  },
+};
+
 export const mockApi = {
   org: mockOrgApi,
   loads: mockLoadsApi,
+  trailers: mockTrailersApi,
+  docks: mockDocksApi,
+  dockyards: mockDockYardsApi,
 };

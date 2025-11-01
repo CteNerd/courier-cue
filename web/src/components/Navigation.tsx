@@ -1,5 +1,6 @@
 import { useUser } from '../hooks/useUser';
 import { DarkModeToggle } from './DarkModeToggle';
+import { Link } from 'react-router-dom';
 
 const USE_MOCK_API = import.meta.env.VITE_USE_MOCK_API === 'true' || false;
 
@@ -15,7 +16,15 @@ export function Navigation() {
     : [
         { name: 'Dashboard', href: '/dashboard' },
         { name: 'Loads', href: '/loads' },
-        ...(currentUser.role === 'admin' || currentUser.role === 'coadmin' ? [{ name: 'Users', href: '/users' }] : []),
+        ...(currentUser.role === 'admin' || currentUser.role === 'coadmin' 
+          ? [
+              { name: 'Trailers', href: '/trailers' },
+              { name: 'Docks', href: '/docks' },
+              { name: 'Dock Yards', href: '/dockyards' },
+              { name: 'Users', href: '/users' }
+            ] 
+          : []
+        ),
         { name: 'Settings', href: '/settings' },
       ];
 
@@ -27,13 +36,13 @@ export function Navigation() {
             <h1 className="text-2xl font-bold text-blue-600 dark:text-blue-400">CourierCue</h1>
             <div className="flex space-x-4">
               {navItems.map(item => (
-                <a
+                <Link
                   key={item.name}
-                  href={item.href}
+                  to={item.href}
                   className="text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white px-3 py-2 rounded-md text-sm font-medium"
                 >
                   {item.name}
-                </a>
+                </Link>
               ))}
             </div>
           </div>

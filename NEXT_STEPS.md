@@ -87,17 +87,17 @@ Modify `.github/workflows/deploy.yml` to package and upload Lambda functions:
       s3://couriercue-${ENV}-deployment/api/${GITHUB_SHA}/
 ```
 
-## Phase 2: Complete Frontend UI Components (High Priority)
+### 2. Complete Frontend UI Components (High Priority)
 
 ### 1. Loads Management Page
 
-**File**: `web/src/pages/LoadsPage.tsx`
+**File**: `web/src/pages/LoadsPage.tsx` ✅ **COMPLETED**
 
-- Table with virtualization (`@tanstack/react-table`)
-- Filters (status, date range, driver, search)
-- Create/Edit load modal
-- Export to CSV functionality
-- Status badges
+- ✅ Table with clickable rows
+- ✅ Trailer and dock selection in create form
+- ✅ Status badges
+- 🔲 Filters (status, date range, driver, search) - TODO
+- 🔲 Export to CSV functionality - TODO
 
 ### 2. Signature Capture Component
 
@@ -116,13 +116,16 @@ import SignaturePad from 'react-signature-canvas';
 
 ### 3. Driver Load Details
 
-**File**: `web/src/pages/LoadDetailsPage.tsx` (enhance existing)
+**File**: `web/src/pages/LoadDetailsPage.tsx` ✅ **ENHANCED**
 
-- Display service address, items, notes
-- Status update buttons
-- Signature capture flow
-- Receipt viewing/downloading
-- Email receipt button
+- ✅ Display service address, items, notes
+- ✅ Trailer & pickup information section
+- ✅ Compliance status badges
+- ✅ Dock and dock yard details
+- 🔲 Status update buttons - TODO
+- 🔲 Signature capture flow - TODO
+- 🔲 Receipt viewing/downloading - TODO
+- 🔲 Email receipt button - TODO
 
 ### 4. Users Management
 
@@ -239,7 +242,47 @@ Move sensitive configs to AWS Secrets Manager:
 - Third-party API keys
 - Encryption keys
 
-## Phase 5: Additional Features (Low Priority)
+## Phase 5: Fleet Management (✅ COMPLETED)
+
+### 1. Trailer Management ✅
+
+**File**: `web/src/pages/TrailersPage.tsx`
+
+- ✅ Full CRUD operations for trailers
+- ✅ Compliance tracking (registration, inspection)
+- ✅ Real-time date calculations
+- ✅ Status management (Active, Inactive, In Repair)
+- ✅ Current dock location tracking
+- ✅ Backend API functions implemented
+
+### 2. Dock & Dock Yard Management ✅
+
+**Files**: `web/src/pages/DocksPage.tsx`, `web/src/pages/DockYardsPage.tsx`
+
+- ✅ Full CRUD for docks and dock yards
+- ✅ Dock type selection (flatbed, drop-in)
+- ✅ Dock yard address management
+- ✅ Relationship linking (docks to dock yards)
+- ✅ Backend API functions implemented
+
+### 3. Enhanced Load Creation ✅
+
+**File**: `web/src/components/CreateLoadForm.tsx`
+
+- ✅ Trailer selection with compliance warnings
+- ✅ Dock selection with auto-population
+- ✅ Dock yard display
+- ✅ Manifest textarea
+- ✅ Only ACTIVE trailers selectable
+
+### 4. Data & Testing ✅
+
+- ✅ Mock data created for development/demo
+- ✅ Backend seed script updated with sample data
+- ✅ API client switching (mock vs real)
+- ✅ Migration logic for data compatibility
+
+## Phase 6: Additional Features (Low Priority)
 
 ### 1. Export Functionality
 
@@ -274,7 +317,7 @@ Move sensitive configs to AWS Secrets Manager:
 - Push notifications
 - Camera integration for photos
 
-## Phase 6: Performance & Scale
+## Phase 7: Performance & Scale
 
 ### 1. Caching
 

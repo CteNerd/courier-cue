@@ -129,11 +129,62 @@ const realLoadsApi = {
     request(`/loads/${id}/email`, { method: 'POST' }),
 };
 
+// Real Trailers API
+const realTrailersApi = {
+  list: () => request<{ trailers: any[] }>('/trailers'),
+  create: (data: any) =>
+    request('/trailers', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  update: (id: string, data: any) =>
+    request(`/trailers/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+};
+
+// Real Docks API
+const realDocksApi = {
+  list: () => request<{ docks: any[] }>('/docks'),
+  create: (data: any) =>
+    request('/docks', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  update: (id: string, data: any) =>
+    request(`/docks/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+};
+
+// Real DockYards API
+const realDockYardsApi = {
+  list: () => request<{ dockyards: any[] }>('/dockyards'),
+  create: (data: any) =>
+    request('/dockyards', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  update: (id: string, data: any) =>
+    request(`/dockyards/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    }),
+};
+
 // Export the appropriate API based on configuration
 export const orgApi = USE_MOCK_API ? mockApi.org : realOrgApi;
 export const loadsApi = USE_MOCK_API ? mockApi.loads : realLoadsApi;
+export const trailersApi = USE_MOCK_API ? mockApi.trailers : realTrailersApi;
+export const docksApi = USE_MOCK_API ? mockApi.docks : realDocksApi;
+export const dockYardsApi = USE_MOCK_API ? mockApi.dockyards : realDockYardsApi;
 
 export default {
   org: orgApi,
   loads: loadsApi,
+  trailers: trailersApi,
+  docks: docksApi,
+  dockYards: dockYardsApi,
 };
