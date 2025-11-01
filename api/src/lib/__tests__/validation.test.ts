@@ -4,6 +4,10 @@ import {
   createLoadSchema,
   updateOrgSettingsSchema,
   inviteUserSchema,
+  createTrailerSchema,
+  updateTrailerSchema,
+  createDockYardSchema,
+  createDockSchema,
   ValidationError,
 } from '../validation.js';
 
@@ -112,6 +116,90 @@ describe('Validation Module', () => {
       };
 
       expect(() => validateBody(createLoadSchema, data)).toThrow(ValidationError);
+    });
+  });
+
+  describe('Trailer validation', () => {
+    it('should validate correct trailer data', () => {
+      const data = {
+        trailerNumber: 'TRL-001',
+        status: 'ACTIVE' as const,
+      };
+
+      const result = validateBody(createTrailerSchema, data);
+      expect(result.trailerNumber).toEqual('TRL-001');
+      expect(result.status).toEqual('ACTIVE');
+    });
+
+    it('should reject empty trailer number', () => {
+      const data = {
+        trailerNumber: '',
+      };
+
+      expect(() => validateBody(createTrailerSchema, data)).toThrow(ValidationError);
+    });
+
+    it('should validate trailer update with optional fields', () => {
+      const data = {
+        currentDockId: 'dock-123',
+        status: 'IN_REPAIR' as const,
+      };
+
+      const result = validateBody(updateTrailerSchema, data);
+      expect(result.currentDockId).toEqual('dock-123');
+      expect(result.status).toEqual('IN_REPAIR');
+    });
+  });
+
+  describe('DockYard validation', () => {
+    it('should validate correct dockyard data', () => {
+      const data = {
+        name: 'Main Yard',
+      };
+
+      const result = validateBody(createDockYardSchema, data);
+      expect(result.name).toEqual('Main Yard');
+    });
+
+    it('should validate dockyard with address', () => {
+      const data = {
+        name: 'Main Yard',
+        address: {
+          name: 'Yard Location',
+          street: '100 Dock St',
+          city: 'Houston',
+          state: 'TX',
+          zip: '77001',
+        },
+      };
+
+      const result = validateBody(createDockYardSchema, data);
+      expect(result.name).toEqual('Main Yard');
+      expect(result.address?.city).toEqual('Houston');
+    });
+  });
+
+  describe('Dock validation', () => {
+    it('should validate correct dock data', () => {
+      const data = {
+        name: 'Dock A',
+        dockYardId: 'yard-123',
+        dockType: 'flatbed' as const,
+      };
+
+      const result = validateBody(createDockSchema, data);
+      expect(result.name).toEqual('Dock A');
+      expect(result.dockType).toEqual('flatbed');
+    });
+
+    it('should reject invalid dock type', () => {
+      const data = {
+        name: 'Dock A',
+        dockYardId: 'yard-123',
+        dockType: 'invalid' as any,
+      };
+
+      expect(() => validateBody(createDockSchema, data)).toThrow(ValidationError);
     });
   });
 });

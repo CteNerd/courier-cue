@@ -316,3 +316,63 @@ export async function saveSignature(
 export async function getSignature(orgId: string, loadId: string) {
   return getItem(`ORG#${orgId}#LOAD#${loadId}`, 'SIGN#SHIPPER');
 }
+
+/**
+ * Get a trailer
+ */
+export async function getTrailer(orgId: string, trailerId: string) {
+  return getItem(`ORG#${orgId}`, `TRAILER#${trailerId}`);
+}
+
+/**
+ * Get all trailers for an org
+ */
+export async function getOrgTrailers(orgId: string) {
+  return query({
+    KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
+    ExpressionAttributeValues: {
+      ':pk': `ORG#${orgId}`,
+      ':sk': 'TRAILER#',
+    },
+  });
+}
+
+/**
+ * Get a dock yard
+ */
+export async function getDockYard(orgId: string, dockYardId: string) {
+  return getItem(`ORG#${orgId}`, `DOCKYARD#${dockYardId}`);
+}
+
+/**
+ * Get all dock yards for an org
+ */
+export async function getOrgDockYards(orgId: string) {
+  return query({
+    KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
+    ExpressionAttributeValues: {
+      ':pk': `ORG#${orgId}`,
+      ':sk': 'DOCKYARD#',
+    },
+  });
+}
+
+/**
+ * Get a dock
+ */
+export async function getDock(orgId: string, dockId: string) {
+  return getItem(`ORG#${orgId}`, `DOCK#${dockId}`);
+}
+
+/**
+ * Get all docks for an org
+ */
+export async function getOrgDocks(orgId: string) {
+  return query({
+    KeyConditionExpression: 'PK = :pk AND begins_with(SK, :sk)',
+    ExpressionAttributeValues: {
+      ':pk': `ORG#${orgId}`,
+      ':sk': 'DOCK#',
+    },
+  });
+}
