@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: 'CourierCue Multi-Tenant SaaS Infrastructure'
+Description: CourierCue Infrastructure
 
 Parameters:
   Env:
@@ -29,7 +29,6 @@ Parameters:
     Description: ACM certificate ARN for the custom domain (must be in us-east-1 for CloudFront)
 
 Resources:
-  # S3 Buckets
   WebBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -101,7 +100,6 @@ Resources:
             AllowedHeaders: ['*']
             MaxAge: 3600
 
-  # DynamoDB Table
   MainTable:
     Type: AWS::DynamoDB::Table
     Properties:
@@ -169,7 +167,6 @@ Resources:
           Projection:
             ProjectionType: ALL
 
-  # CloudFront Distribution (conditional)
   CloudFrontOriginAccessControl:
     Type: AWS::CloudFront::OriginAccessControl
     Condition: EnableCloudFrontCondition
@@ -222,7 +219,6 @@ Resources:
             ResponseCode: 200
             ResponsePagePath: /index.html
 
-  # Cognito User Pool
   UserPool:
     Type: AWS::Cognito::UserPool
     Properties:
@@ -296,7 +292,6 @@ Resources:
       Domain: !Sub 'couriercue-${Env}-${AWS::AccountId}'
       UserPoolId: !Ref UserPool
 
-  # Lambda Execution Role
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
@@ -361,7 +356,6 @@ Resources:
                   - 'cognito-idp:AdminListGroupsForUser'
                 Resource: !GetAtt UserPool.Arn
 
-  # API Gateway HTTP API
   HttpApi:
     Type: AWS::ApiGatewayV2::Api
     Properties:
@@ -397,8 +391,6 @@ Resources:
           - !Ref UserPoolClient
         Issuer: !Sub 'https://cognito-idp.${AWS::Region}.amazonaws.com/${UserPool}'
 
-  # API Gateway Routes and Integrations
-  # Organization Routes
   OrgGetSettingsRoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
@@ -499,7 +491,6 @@ Resources:
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
 
-  # Load Routes
   LoadsCreateRoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
@@ -750,7 +741,6 @@ Resources:
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
 
-  # Trailer Routes
   TrailersListRoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
@@ -826,7 +816,6 @@ Resources:
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
 
-  # Dock Yard Routes
   DockYardsListRoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
@@ -902,7 +891,6 @@ Resources:
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
 
-  # Dock Routes
   DocksListRoute:
     Type: AWS::ApiGatewayV2::Route
     Properties:
@@ -978,7 +966,6 @@ Resources:
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
 
-  # Deployment Bucket for Lambda code
   DeploymentBucket:
     Type: AWS::S3::Bucket
     Properties:
@@ -991,8 +978,6 @@ Resources:
             Status: Enabled
             NoncurrentVersionExpirationInDays: 7
 
-  # Lambda Functions
-  # Organization Functions
   OrgGetSettingsFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -1065,7 +1050,6 @@ Resources:
           REGION: !Ref AWS::Region
           USER_POOL_ID: !Ref UserPool
 
-  # Load Functions
   LoadsCreateFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -1246,7 +1230,6 @@ Resources:
           REGION: !Ref AWS::Region
           USER_POOL_ID: !Ref UserPool
 
-  # Trailer Functions
   TrailersListFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -1301,7 +1284,6 @@ Resources:
           REGION: !Ref AWS::Region
           USER_POOL_ID: !Ref UserPool
 
-  # Dock Yard Functions
   DockYardsListFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -1356,7 +1338,6 @@ Resources:
           REGION: !Ref AWS::Region
           USER_POOL_ID: !Ref UserPool
 
-  # Dock Functions
   DocksListFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -1411,7 +1392,6 @@ Resources:
           REGION: !Ref AWS::Region
           USER_POOL_ID: !Ref UserPool
 
-  # Log Groups for all functions
   OrgGetSettingsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
@@ -1550,7 +1530,6 @@ Resources:
       LogGroupName: !Sub '/aws/lambda/${DocksUpdateFunction}'
       RetentionInDays: !If [IsProd, 30, 7]
 
-  # API Gateway Stage
   HttpApiStage:
     Type: AWS::ApiGatewayV2::Stage
     Properties:
