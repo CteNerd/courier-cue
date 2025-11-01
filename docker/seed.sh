@@ -216,6 +216,243 @@ aws dynamodb put-item \
     "GSI4SK": {"S": "'$DATE_KEY'#ASSIGNED#'$LOAD_ID'"}
   }' 2>/dev/null || echo "Demo load already exists"
 
+# Seed dock yards
+echo "🏭 Creating demo dock yards..."
+aws dynamodb put-item \
+  --endpoint-url $DYNAMODB_ENDPOINT \
+  --table-name $TABLE_NAME \
+  --item '{
+    "PK": {"S": "ORG#'$ORG_ID'"},
+    "SK": {"S": "DOCKYARD#dy-001"},
+    "dockYardId": {"S": "dy-001"},
+    "name": {"S": "Dallas Distribution Center"},
+    "address": {"S": "5000 Distribution Parkway, Dallas, TX 75201"},
+    "orgId": {"S": "'$ORG_ID'"},
+    "createdAt": {"S": "2025-01-15T08:00:00Z"},
+    "updatedAt": {"S": "2025-01-15T08:00:00Z"}
+  }' 2>/dev/null || echo "Dock yard dy-001 already exists"
+
+aws dynamodb put-item \
+  --endpoint-url $DYNAMODB_ENDPOINT \
+  --table-name $TABLE_NAME \
+  --item '{
+    "PK": {"S": "ORG#'$ORG_ID'"},
+    "SK": {"S": "DOCKYARD#dy-002"},
+    "dockYardId": {"S": "dy-002"},
+    "name": {"S": "Houston Logistics Hub"},
+    "address": {"S": "2500 Port Boulevard, Houston, TX 77001"},
+    "orgId": {"S": "'$ORG_ID'"},
+    "createdAt": {"S": "2025-02-10T09:00:00Z"},
+    "updatedAt": {"S": "2025-02-10T09:00:00Z"}
+  }' 2>/dev/null || echo "Dock yard dy-002 already exists"
+
+aws dynamodb put-item \
+  --endpoint-url $DYNAMODB_ENDPOINT \
+  --table-name $TABLE_NAME \
+  --item '{
+    "PK": {"S": "ORG#'$ORG_ID'"},
+    "SK": {"S": "DOCKYARD#dy-003"},
+    "dockYardId": {"S": "dy-003"},
+    "name": {"S": "Austin Warehouse"},
+    "address": {"S": "1200 Industrial Drive, Austin, TX 78701"},
+    "orgId": {"S": "'$ORG_ID'"},
+    "createdAt": {"S": "2025-03-20T10:00:00Z"},
+    "updatedAt": {"S": "2025-03-20T10:00:00Z"}
+  }' 2>/dev/null || echo "Dock yard dy-003 already exists"
+
+# Seed docks
+echo "🚪 Creating demo docks..."
+aws dynamodb put-item \
+  --endpoint-url $DYNAMODB_ENDPOINT \
+  --table-name $TABLE_NAME \
+  --item '{
+    "PK": {"S": "ORG#'$ORG_ID'"},
+    "SK": {"S": "DOCK#dock-001"},
+    "dockId": {"S": "dock-001"},
+    "name": {"S": "Dock A1"},
+    "dockType": {"S": "flatbed"},
+    "dockYardId": {"S": "dy-001"},
+    "orgId": {"S": "'$ORG_ID'"},
+    "createdAt": {"S": "2025-01-15T08:30:00Z"},
+    "updatedAt": {"S": "2025-01-15T08:30:00Z"}
+  }' 2>/dev/null || echo "Dock dock-001 already exists"
+
+aws dynamodb put-item \
+  --endpoint-url $DYNAMODB_ENDPOINT \
+  --table-name $TABLE_NAME \
+  --item '{
+    "PK": {"S": "ORG#'$ORG_ID'"},
+    "SK": {"S": "DOCK#dock-002"},
+    "dockId": {"S": "dock-002"},
+    "name": {"S": "Dock A2"},
+    "dockType": {"S": "drop-in"},
+    "dockYardId": {"S": "dy-001"},
+    "orgId": {"S": "'$ORG_ID'"},
+    "createdAt": {"S": "2025-01-15T08:35:00Z"},
+    "updatedAt": {"S": "2025-01-15T08:35:00Z"}
+  }' 2>/dev/null || echo "Dock dock-002 already exists"
+
+aws dynamodb put-item \
+  --endpoint-url $DYNAMODB_ENDPOINT \
+  --table-name $TABLE_NAME \
+  --item '{
+    "PK": {"S": "ORG#'$ORG_ID'"},
+    "SK": {"S": "DOCK#dock-003"},
+    "dockId": {"S": "dock-003"},
+    "name": {"S": "Dock B1"},
+    "dockType": {"S": "flatbed"},
+    "dockYardId": {"S": "dy-002"},
+    "orgId": {"S": "'$ORG_ID'"},
+    "createdAt": {"S": "2025-02-10T09:30:00Z"},
+    "updatedAt": {"S": "2025-02-10T09:30:00Z"}
+  }' 2>/dev/null || echo "Dock dock-003 already exists"
+
+aws dynamodb put-item \
+  --endpoint-url $DYNAMODB_ENDPOINT \
+  --table-name $TABLE_NAME \
+  --item '{
+    "PK": {"S": "ORG#'$ORG_ID'"},
+    "SK": {"S": "DOCK#dock-004"},
+    "dockId": {"S": "dock-004"},
+    "name": {"S": "Dock B2"},
+    "dockType": {"S": "drop-in"},
+    "dockYardId": {"S": "dy-002"},
+    "orgId": {"S": "'$ORG_ID'"},
+    "createdAt": {"S": "2025-02-10T09:35:00Z"},
+    "updatedAt": {"S": "2025-02-10T09:35:00Z"}
+  }' 2>/dev/null || echo "Dock dock-004 already exists"
+
+aws dynamodb put-item \
+  --endpoint-url $DYNAMODB_ENDPOINT \
+  --table-name $TABLE_NAME \
+  --item '{
+    "PK": {"S": "ORG#'$ORG_ID'"},
+    "SK": {"S": "DOCK#dock-005"},
+    "dockId": {"S": "dock-005"},
+    "name": {"S": "Dock C1"},
+    "dockType": {"S": "flatbed"},
+    "dockYardId": {"S": "dy-003"},
+    "orgId": {"S": "'$ORG_ID'"},
+    "createdAt": {"S": "2025-03-20T10:30:00Z"},
+    "updatedAt": {"S": "2025-03-20T10:30:00Z"}
+  }' 2>/dev/null || echo "Dock dock-005 already exists"
+
+# Seed trailers
+echo "🚛 Creating demo trailers..."
+aws dynamodb put-item \
+  --endpoint-url $DYNAMODB_ENDPOINT \
+  --table-name $TABLE_NAME \
+  --item '{
+    "PK": {"S": "ORG#'$ORG_ID'"},
+    "SK": {"S": "TRAILER#trailer-001"},
+    "trailerId": {"S": "trailer-001"},
+    "trailerNumber": {"S": "Trailer 101"},
+    "currentDockId": {"S": "dock-001"},
+    "status": {"S": "ACTIVE"},
+    "registrationExpiresAt": {"S": "2026-06-15T00:00:00Z"},
+    "isRegistrationCurrent": {"BOOL": true},
+    "inspectionExpiresAt": {"S": "2026-03-20T00:00:00Z"},
+    "isInspectionCurrent": {"BOOL": true},
+    "orgId": {"S": "'$ORG_ID'"},
+    "createdAt": {"S": "2025-01-20T10:00:00Z"},
+    "updatedAt": {"S": "2025-01-20T10:00:00Z"}
+  }' 2>/dev/null || echo "Trailer trailer-001 already exists"
+
+aws dynamodb put-item \
+  --endpoint-url $DYNAMODB_ENDPOINT \
+  --table-name $TABLE_NAME \
+  --item '{
+    "PK": {"S": "ORG#'$ORG_ID'"},
+    "SK": {"S": "TRAILER#trailer-002"},
+    "trailerId": {"S": "trailer-002"},
+    "trailerNumber": {"S": "Trailer 102"},
+    "currentDockId": {"S": "dock-002"},
+    "status": {"S": "ACTIVE"},
+    "registrationExpiresAt": {"S": "2026-08-10T00:00:00Z"},
+    "isRegistrationCurrent": {"BOOL": true},
+    "inspectionExpiresAt": {"S": "2026-05-15T00:00:00Z"},
+    "isInspectionCurrent": {"BOOL": true},
+    "orgId": {"S": "'$ORG_ID'"},
+    "createdAt": {"S": "2025-01-22T11:00:00Z"},
+    "updatedAt": {"S": "2025-01-22T11:00:00Z"}
+  }' 2>/dev/null || echo "Trailer trailer-002 already exists"
+
+aws dynamodb put-item \
+  --endpoint-url $DYNAMODB_ENDPOINT \
+  --table-name $TABLE_NAME \
+  --item '{
+    "PK": {"S": "ORG#'$ORG_ID'"},
+    "SK": {"S": "TRAILER#trailer-003"},
+    "trailerId": {"S": "trailer-003"},
+    "trailerNumber": {"S": "Trailer 201"},
+    "currentDockId": {"S": "dock-003"},
+    "status": {"S": "ACTIVE"},
+    "registrationExpiresAt": {"S": "2026-07-25T00:00:00Z"},
+    "isRegistrationCurrent": {"BOOL": true},
+    "inspectionExpiresAt": {"S": "2025-12-30T00:00:00Z"},
+    "isInspectionCurrent": {"BOOL": true},
+    "orgId": {"S": "'$ORG_ID'"},
+    "createdAt": {"S": "2025-02-15T09:00:00Z"},
+    "updatedAt": {"S": "2025-02-15T09:00:00Z"}
+  }' 2>/dev/null || echo "Trailer trailer-003 already exists"
+
+aws dynamodb put-item \
+  --endpoint-url $DYNAMODB_ENDPOINT \
+  --table-name $TABLE_NAME \
+  --item '{
+    "PK": {"S": "ORG#'$ORG_ID'"},
+    "SK": {"S": "TRAILER#trailer-004"},
+    "trailerId": {"S": "trailer-004"},
+    "trailerNumber": {"S": "Trailer 202"},
+    "currentDockId": {"S": "dock-004"},
+    "status": {"S": "IN_REPAIR"},
+    "registrationExpiresAt": {"S": "2026-09-05T00:00:00Z"},
+    "isRegistrationCurrent": {"BOOL": true},
+    "inspectionExpiresAt": {"S": "2025-11-20T00:00:00Z"},
+    "isInspectionCurrent": {"BOOL": false},
+    "orgId": {"S": "'$ORG_ID'"},
+    "createdAt": {"S": "2025-02-18T10:30:00Z"},
+    "updatedAt": {"S": "2025-10-25T14:00:00Z"}
+  }' 2>/dev/null || echo "Trailer trailer-004 already exists"
+
+aws dynamodb put-item \
+  --endpoint-url $DYNAMODB_ENDPOINT \
+  --table-name $TABLE_NAME \
+  --item '{
+    "PK": {"S": "ORG#'$ORG_ID'"},
+    "SK": {"S": "TRAILER#trailer-005"},
+    "trailerId": {"S": "trailer-005"},
+    "trailerNumber": {"S": "Trailer 301"},
+    "currentDockId": {"S": "dock-005"},
+    "status": {"S": "ACTIVE"},
+    "registrationExpiresAt": {"S": "2026-04-12T00:00:00Z"},
+    "isRegistrationCurrent": {"BOOL": true},
+    "inspectionExpiresAt": {"S": "2026-02-28T00:00:00Z"},
+    "isInspectionCurrent": {"BOOL": true},
+    "orgId": {"S": "'$ORG_ID'"},
+    "createdAt": {"S": "2025-03-25T13:00:00Z"},
+    "updatedAt": {"S": "2025-03-25T13:00:00Z"}
+  }' 2>/dev/null || echo "Trailer trailer-005 already exists"
+
+aws dynamodb put-item \
+  --endpoint-url $DYNAMODB_ENDPOINT \
+  --table-name $TABLE_NAME \
+  --item '{
+    "PK": {"S": "ORG#'$ORG_ID'"},
+    "SK": {"S": "TRAILER#trailer-006"},
+    "trailerId": {"S": "trailer-006"},
+    "trailerNumber": {"S": "Trailer 302"},
+    "currentDockId": {"S": "dock-005"},
+    "status": {"S": "INACTIVE"},
+    "registrationExpiresAt": {"S": "2025-10-15T00:00:00Z"},
+    "isRegistrationCurrent": {"BOOL": false},
+    "inspectionExpiresAt": {"S": "2025-09-30T00:00:00Z"},
+    "isInspectionCurrent": {"BOOL": false},
+    "orgId": {"S": "'$ORG_ID'"},
+    "createdAt": {"S": "2025-04-10T08:00:00Z"},
+    "updatedAt": {"S": "2025-10-15T16:00:00Z"}
+  }' 2>/dev/null || echo "Trailer trailer-006 already exists"
+
 echo "✅ Seeding complete!"
 echo ""
 echo "Demo credentials:"

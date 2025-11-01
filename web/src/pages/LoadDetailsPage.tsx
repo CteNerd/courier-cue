@@ -293,6 +293,69 @@ export default function LoadDetailsPage() {
                 </div>
               </div>
 
+              {/* Trailer & Pickup Information */}
+              {(load as any).trailer && (
+                <div className="mt-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+                  <h5 className="font-medium text-gray-900 dark:text-white mb-3">🚛 Trailer & Pickup Information</h5>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Trailer Number</p>
+                      <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                        {(load as any).trailer.trailerNumber}
+                      </p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-gray-600 dark:text-gray-400">Compliance Status</p>
+                      <p className="text-lg">
+                        {(load as any).trailer.compliance === 'COMPLIANT' ? (
+                          <span className="px-3 py-1 text-sm rounded-full bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200">
+                            ✓ Compliant
+                          </span>
+                        ) : (
+                          <span className="px-3 py-1 text-sm rounded-full bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200">
+                            ⚠️ Needs Updating
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                    {(load as any).trailerLocation && (
+                      <>
+                        <div>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">Pickup Dock</p>
+                          <p className="text-lg font-medium text-gray-900 dark:text-white">
+                            {(load as any).trailerLocation.name}
+                          </p>
+                          <p className="text-sm text-gray-500 dark:text-gray-500">
+                            Type: {(load as any).trailerLocation.dockType}
+                          </p>
+                        </div>
+                        {(load as any).dockyard && (
+                          <div>
+                            <p className="text-sm text-gray-600 dark:text-gray-400">Dock Yard</p>
+                            <p className="text-lg font-medium text-gray-900 dark:text-white">
+                              {(load as any).dockyard.name}
+                            </p>
+                            {(load as any).dockyard.address && (
+                              <p className="text-sm text-gray-500 dark:text-gray-500 whitespace-pre-wrap">
+                                {(load as any).dockyard.address}
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </>
+                    )}
+                  </div>
+                  {(load as any).manifest && (
+                    <div className="mt-4 pt-4 border-t border-blue-200 dark:border-blue-800">
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">Manifest</p>
+                      <p className="text-gray-900 dark:text-white whitespace-pre-wrap">
+                        {(load as any).manifest}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
+
               {/* Items */}
               <div className="mt-6">
                 <h5 className="font-medium text-gray-900 dark:text-white mb-3">Items</h5>

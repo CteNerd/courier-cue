@@ -1,10 +1,12 @@
 import { useCreateLoadForm } from '../hooks/useCreateLoadForm';
 import { CreateLoadFormProps } from '../types/load';
-import { orgApi } from '../lib/api';
+import { orgApi, trailersApi, docksApi, dockYardsApi } from '../lib/api';
 import { useState, useEffect } from 'react';
 import ServiceAddressForm from './forms/ServiceAddressForm';
 import ItemsManager from './forms/ItemsManager';
 import LoadAssignment from './forms/LoadAssignment';
+import { Trailer, calculateCompliance } from '../types/trailer';
+import { Dock, DockYard } from '../types/dock';
 
 interface User {
   id: string;
@@ -15,7 +17,14 @@ interface User {
 
 export default function CreateLoadForm({ isOpen, onClose, onSubmit }: CreateLoadFormProps) {
   const [users, setUsers] = useState<User[]>([]);
+  const [trailers, setTrailers] = useState<Trailer[]>([]);
+  const [docks, setDocks] = useState<Dock[]>([]);
+  const [dockYards, setDockYards] = useState<DockYard[]>([]);
   const [loading, setLoading] = useState(false);
+  const [selectedTrailerId, setSelectedTrailerId] = useState<string>('');
+  const [selectedDockId, setSelectedDockId] = useState<string>('');
+  const [manifest, setManifest] = useState<string>('');
+  
   const {
     formData,
     handleAddressChange,
@@ -30,19 +39,32 @@ export default function CreateLoadForm({ isOpen, onClose, onSubmit }: CreateLoad
 
   const drivers = users.filter(user => user.role === 'driver');
 
-  // Load users when form opens
+  // Load users and resources when form opens
   useEffect(() => {
     if (isOpen) {
-      loadUsers();
+      loadData();
     }
   }, [isOpen]);
 
-  const loadUsers = async () => {
+  const loadData = async () => {
     try {
-      const response = await orgApi.listUsers();
-      setUsers(response.users || []);
+      const [usersResponse, trailersResponse, docksResponse, dockYardsResponse] = await Promise.all([
+        orgApi.listUsers(),
+        trailersApi.list(),
+        docksApi.list(),
+        dockYardsApi.list(),
+      ]);
+      setUsers(usersResponse.users || []);
+      
+      const trailersWithCompliance = (trailersResponse.trailers || []).map((t: Trailer) => ({
+        ...t,
+        compliance: calculateCompliance(t),
+      }));
+      setTrailers(trailersWithCompliance);
+      setDocks(docksResponse.docks || []);
+      setDockYards(dockYardsResponse.dockyards || []);
     } catch (error) {
-      console.error('Failed to load users:', error);
+      console.error('Failed to load data:', error);
     }
   };
 
@@ -70,11 +92,19 @@ export default function CreateLoadForm({ isOpen, onClose, onSubmit }: CreateLoad
         assignedDriverId: formData.assignedDriverId || undefined,
         notes: formData.notes || undefined,
         priority: formData.priority,
-        status: formData.assignedDriverId ? 'ASSIGNED' : 'PENDING'
+        status: formData.assignedDriverId ? 'ASSIGNED' : 'PENDING',
+        // New fields
+        trailerId: selectedTrailerId || undefined,
+        trailerLocationId: selectedDockId || undefined,
+        dockYardId: selectedDockId ? docks.find(d => d.dockId === selectedDockId)?.dockYardId : undefined,
+        manifest: manifest || undefined,
       };
 
       await onSubmit(loadData);
       resetForm();
+      setSelectedTrailerId('');
+      setSelectedDockId('');
+      setManifest('');
       onClose();
     } catch (error) {
       console.error('Failed to create load:', error);
@@ -102,6 +132,90 @@ export default function CreateLoadForm({ isOpen, onClose, onSubmit }: CreateLoad
               serviceAddress={formData.serviceAddress}
               onChange={handleAddressChange}
             />
+
+            {/* Trailer & Location Information */}
+            <div className="border-t dark:border-gray-700 pt-6">
+              <h4 className="text-md font-medium text-gray-900 dark:text-white mb-4">
+                Trailer & Location (Optional)
+              </h4>
+              
+              <div className="space-y-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Trailer
+                  </label>
+                  <select
+                    value={selectedTrailerId}
+                    onChange={(e) => {
+                      setSelectedTrailerId(e.target.value);
+                      // Auto-populate dock from trailer's current location
+                      if (e.target.value) {
+                        const trailer = trailers.find(t => t.trailerId === e.target.value);
+                        if (trailer?.currentDockId) {
+                          setSelectedDockId(trailer.currentDockId);
+                        }
+                      }
+                    }}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  >
+                    <option value="">Select a trailer</option>
+                    {trailers
+                      .filter(t => t.status === 'ACTIVE')
+                      .map((trailer) => {
+                        const dock = docks.find(d => d.dockId === trailer.currentDockId);
+                        const locationText = dock ? ` - at ${dock.name}` : '';
+                        return (
+                          <option key={trailer.trailerId} value={trailer.trailerId}>
+                            {trailer.trailerNumber} ({trailer.compliance}){locationText}
+                          </option>
+                        );
+                      })}
+                  </select>
+                  {selectedTrailerId && (() => {
+                    const trailer = trailers.find(t => t.trailerId === selectedTrailerId);
+                    return trailer?.compliance === 'NEEDS_UPDATING' && (
+                      <p className="mt-1 text-sm text-yellow-600 dark:text-yellow-400">
+                        ⚠️ Warning: This trailer needs updating (registration or inspection expired)
+                      </p>
+                    );
+                  })()}
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Trailer Location (Dock)
+                  </label>
+                  <select
+                    value={selectedDockId}
+                    onChange={(e) => setSelectedDockId(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  >
+                    <option value="">Select a dock</option>
+                    {docks.map((dock) => {
+                      const dockYard = dockYards.find(dy => dy.dockYardId === dock.dockYardId);
+                      return (
+                        <option key={dock.dockId} value={dock.dockId}>
+                          {dock.name} ({dock.dockType}) - {dockYard?.name || 'Unknown Yard'}
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Manifest
+                  </label>
+                  <textarea
+                    value={manifest}
+                    onChange={(e) => setManifest(e.target.value)}
+                    rows={3}
+                    placeholder="Description of items loaded on the trailer..."
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                  />
+                </div>
+              </div>
+            </div>
 
             <ItemsManager
               items={formData.items}
