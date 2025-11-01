@@ -750,6 +750,234 @@ Resources:
       Principal: apigateway.amazonaws.com
       SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
 
+  # Trailer Routes
+  TrailersListRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'GET /trailers'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${TrailersListIntegration}'
+
+  TrailersListIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt TrailersListFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  TrailersListFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref TrailersListFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  TrailersCreateRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'POST /trailers'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${TrailersCreateIntegration}'
+
+  TrailersCreateIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt TrailersCreateFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  TrailersCreateFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref TrailersCreateFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  TrailersUpdateRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'PATCH /trailers/{id}'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${TrailersUpdateIntegration}'
+
+  TrailersUpdateIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt TrailersUpdateFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  TrailersUpdateFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref TrailersUpdateFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  # Dock Yard Routes
+  DockYardsListRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'GET /dockyards'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${DockYardsListIntegration}'
+
+  DockYardsListIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt DockYardsListFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  DockYardsListFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref DockYardsListFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  DockYardsCreateRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'POST /dockyards'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${DockYardsCreateIntegration}'
+
+  DockYardsCreateIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt DockYardsCreateFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  DockYardsCreateFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref DockYardsCreateFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  DockYardsUpdateRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'PATCH /dockyards/{id}'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${DockYardsUpdateIntegration}'
+
+  DockYardsUpdateIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt DockYardsUpdateFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  DockYardsUpdateFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref DockYardsUpdateFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  # Dock Routes
+  DocksListRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'GET /docks'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${DocksListIntegration}'
+
+  DocksListIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt DocksListFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  DocksListFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref DocksListFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  DocksCreateRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'POST /docks'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${DocksCreateIntegration}'
+
+  DocksCreateIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt DocksCreateFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  DocksCreateFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref DocksCreateFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
+  DocksUpdateRoute:
+    Type: AWS::ApiGatewayV2::Route
+    Properties:
+      ApiId: !Ref HttpApi
+      RouteKey: 'PATCH /docks/{id}'
+      AuthorizationType: JWT
+      AuthorizerId: !Ref HttpApiAuthorizer
+      Target: !Sub 'integrations/${DocksUpdateIntegration}'
+
+  DocksUpdateIntegration:
+    Type: AWS::ApiGatewayV2::Integration
+    Properties:
+      ApiId: !Ref HttpApi
+      IntegrationType: AWS_PROXY
+      IntegrationUri: !GetAtt DocksUpdateFunction.Arn
+      PayloadFormatVersion: '2.0'
+
+  DocksUpdateFunctionPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      FunctionName: !Ref DocksUpdateFunction
+      Action: lambda:InvokeFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn: !Sub 'arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${HttpApi}/*/*'
+
   # Deployment Bucket for Lambda code
   DeploymentBucket:
     Type: AWS::S3::Bucket
@@ -1018,6 +1246,171 @@ Resources:
           REGION: !Ref AWS::Region
           USER_POOL_ID: !Ref UserPool
 
+  # Trailer Functions
+  TrailersListFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-trailers-list'
+      Runtime: nodejs20.x
+      Handler: trailers/list-trailers.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  TrailersCreateFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-trailers-create'
+      Runtime: nodejs20.x
+      Handler: trailers/create-trailer.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  TrailersUpdateFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-trailers-update'
+      Runtime: nodejs20.x
+      Handler: trailers/update-trailer.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  # Dock Yard Functions
+  DockYardsListFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-dockyards-list'
+      Runtime: nodejs20.x
+      Handler: dockyards/list-dockyards.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  DockYardsCreateFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-dockyards-create'
+      Runtime: nodejs20.x
+      Handler: dockyards/create-dockyard.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  DockYardsUpdateFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-dockyards-update'
+      Runtime: nodejs20.x
+      Handler: dockyards/update-dockyard.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  # Dock Functions
+  DocksListFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-docks-list'
+      Runtime: nodejs20.x
+      Handler: docks/list-docks.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  DocksCreateFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-docks-create'
+      Runtime: nodejs20.x
+      Handler: docks/create-dock.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
+  DocksUpdateFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: !Sub 'couriercue-${Env}-docks-update'
+      Runtime: nodejs20.x
+      Handler: docks/update-dock.handler
+      Role: !GetAtt LambdaExecutionRole.Arn
+      Code:
+        S3Bucket: !Ref DeploymentBucket
+        S3Key: 'api/functions.zip'
+      Environment:
+        Variables:
+          TABLE_NAME: !Ref MainTable
+          ASSETS_BUCKET: !Ref AssetsBucket
+          ENV: !Ref Env
+          REGION: !Ref AWS::Region
+          USER_POOL_ID: !Ref UserPool
+
   # Log Groups for all functions
   OrgGetSettingsFunctionLogGroup:
     Type: AWS::Logs::LogGroup
@@ -1101,6 +1494,60 @@ Resources:
     Type: AWS::Logs::LogGroup
     Properties:
       LogGroupName: !Sub '/aws/lambda/${LoadsSendEmailFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  TrailersListFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${TrailersListFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  TrailersCreateFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${TrailersCreateFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  TrailersUpdateFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${TrailersUpdateFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  DockYardsListFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${DockYardsListFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  DockYardsCreateFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${DockYardsCreateFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  DockYardsUpdateFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${DockYardsUpdateFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  DocksListFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${DocksListFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  DocksCreateFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${DocksCreateFunction}'
+      RetentionInDays: !If [IsProd, 30, 7]
+
+  DocksUpdateFunctionLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/lambda/${DocksUpdateFunction}'
       RetentionInDays: !If [IsProd, 30, 7]
 
   # API Gateway Stage
