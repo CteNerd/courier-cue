@@ -175,12 +175,12 @@ export const updateTrailerSchema = z.object({
 // Dock Yard schemas
 export const createDockYardSchema = z.object({
   name: z.string().min(1),
-  address: z.string().optional(),
+  address: addressSchema.optional(),
 });
 
 export const updateDockYardSchema = z.object({
   name: z.string().min(1).optional(),
-  address: z.string().optional(),
+  address: addressSchema.optional(),
 });
 
 // Dock schemas
