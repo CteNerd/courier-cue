@@ -156,7 +156,9 @@ export const createTrailerSchema = z.object({
   trailerNumber: z.string().min(1),
   currentDockId: z.string().optional(),
   registrationExpiresAt: z.string().datetime().optional(),
+  isRegistrationCurrent: z.boolean().default(true),
   inspectionExpiresAt: z.string().datetime().optional(),
+  isInspectionCurrent: z.boolean().default(true),
   status: trailerStatus.default('ACTIVE'),
 });
 
@@ -164,19 +166,21 @@ export const updateTrailerSchema = z.object({
   trailerNumber: z.string().min(1).optional(),
   currentDockId: z.string().optional(),
   registrationExpiresAt: z.string().datetime().optional(),
+  isRegistrationCurrent: z.boolean().optional(),
   inspectionExpiresAt: z.string().datetime().optional(),
+  isInspectionCurrent: z.boolean().optional(),
   status: trailerStatus.optional(),
 });
 
 // Dock Yard schemas
 export const createDockYardSchema = z.object({
   name: z.string().min(1),
-  address: addressSchema.optional(),
+  address: z.string().optional(),
 });
 
 export const updateDockYardSchema = z.object({
   name: z.string().min(1).optional(),
-  address: addressSchema.optional(),
+  address: z.string().optional(),
 });
 
 // Dock schemas
